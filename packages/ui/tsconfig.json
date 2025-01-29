@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/typescript-config/react-library.json",
+  "extends": "@cropemall/typescript-config/react-library.json",
   "compilerOptions": {
     "outDir": "dist"
   },

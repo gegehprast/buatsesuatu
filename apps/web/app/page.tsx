@@ -1,5 +1,5 @@
-import { add } from '@repo/math/add'
-import { Button } from '@repo/ui/button'
+import { add } from '@cropemall/math/add'
+import { Button } from '@cropemall/ui/button'
 import Image, { type ImageProps } from 'next/image'
 
 import styles from './page.module.css'

@@ -1,5 +1,5 @@
 {
-  "name": "@repo/math",
+  "name": "@cropemall/math",
   "type": "module",
   "scripts": {
     "dev": "tsc --watch",
@@ -16,7 +16,7 @@
     }
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
+    "@cropemall/typescript-config": "workspace:*",
     "typescript": "latest"
   }
 }
