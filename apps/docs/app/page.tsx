@@ -1,5 +1,8 @@
+'use client'
+
 import { Button } from '@cropemall/ui/button'
 import Image, { type ImageProps } from 'next/image'
+import { useEffect, useState } from 'react'
 
 import styles from './page.module.css'
 
@@ -20,6 +23,16 @@ const ThemeImage = (props: Props) => {
 }
 
 export default function Home() {
+    const [counter, setCounter] = useState(0)
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCounter((prev) => prev + 1)
+        }, 1000)
+
+        return () => clearInterval(interval)
+    }, [])
+
     return (
         <div className={styles.page}>
             <main className={styles.main}>
@@ -67,6 +80,13 @@ export default function Home() {
                 </div>
                 <Button appName="docs" className={styles.secondary}>
                     Open alert
+                </Button>
+                <Button
+                    appName="docs"
+                    className={styles.secondary}
+                    onClick={() => setCounter(counter + 1)}
+                >
+                    {counter}
                 </Button>
             </main>
             <footer className={styles.footer}>
