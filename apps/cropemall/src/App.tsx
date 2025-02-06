@@ -1,28 +1,21 @@
-import { Button } from '@cropemall/ui/button'
-import { useEffect, useState } from 'react'
+import Dropable from './components/Dropable'
+import Editor from './components/Editor'
+import Sidebar from './components/Sidebar'
+import useFileStore from './hooks/useFileStore'
 
 function App() {
-    const [count, setCount] = useState(0)
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCount((prev) => prev + 1)
-        }, 1000)
-
-        return () => clearInterval(interval)
-    }, [])
-
+    const files = useFileStore((s) => s.files)
+    
     return (
-        <main className="text-2xl w-full h-10 bg-amber-400 font-bold">
-            Hello
-            <Button
-                appName="cropemall"
-                className="block bg-black text-white p-2 rounded"
-                onClick={() => setCount((c) => c + 1)}
-            >
-                Click me {count}
-            </Button>
-        </main>
+        <div className="flex h-screen bg-white">
+            <main className="relative flex flex-col flex-1 overflow-auto">
+                {files.length === 0 && <Dropable />}
+
+                {files.length > 0 && <Editor />}
+            </main>
+
+            <Sidebar />
+        </div>
     )
 }
 
