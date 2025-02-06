@@ -22,7 +22,7 @@ const ThemeImage = (props: Props) => {
     )
 }
 
-export default function Home() {
+export default function Home(): React.ReactElement {
     const [counter, setCounter] = useState(0)
 
     useEffect(() => {
