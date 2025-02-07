@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 type UseMovableWithMouse<T extends HTMLElement> = [
     React.MutableRefObject<T | null>,
     Vector,
+    React.Dispatch<React.SetStateAction<Vector>>,
 ]
 
 const useMovableWithMouse = <
@@ -71,7 +72,7 @@ const useMovableWithMouse = <
         }
     }, [position])
 
-    return [elementRef, position]
+    return [elementRef, position, setPosition]
 }
 
 export default useMovableWithMouse
