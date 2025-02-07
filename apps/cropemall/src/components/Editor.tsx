@@ -79,23 +79,11 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
             return
         }
         
-        const virtualImageSize = imgSize
-        const ratioToNatural = image.current.naturalWidth / virtualImageSize.width
+        const ratioToNatural = image.current.naturalWidth / imgSize.width
         const actualCropperSize = {
             width: cropperSize.width * ratioToNatural,
             height: cropperSize.height * ratioToNatural,
         }
-        
-        // const distCropperToImage = {
-        //     x: cropperPos.x - imgPos.x,
-        //     y: cropperPos.y - imgPos.y,
-        // }
-
-        // const actualPosition = {
-        //     x: distCropperToImage.x * ratioToNatural,
-        //     y: distCropperToImage.y * ratioToNatural,
-        // }
-
         const distCropperToImage = cropperPos.sub(imgPos)
         const actualPosition = distCropperToImage.mult(ratioToNatural)
         
