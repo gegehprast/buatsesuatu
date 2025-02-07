@@ -1,21 +1,17 @@
 import useFileStore from '@/hooks/useFileStore'
+import Cropper from './Cropper'
 
 const Editor = () => {
     const files = useFileStore((s) => s.files)
-    
+
     return (
-        <div className="grid grid-cols-4 gap-4 p-4 xl:grid-cols-6">
+        <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {files.map((file) => (
-                <div
+                <Cropper
                     key={file.name}
-                    className="relative flex items-center justify-center w-full border border-collapse h-96"
-                >
-                    <img
-                        src={URL.createObjectURL(file)}
-                        alt={file.name}
-                        className="object-contain w-auto h-full"
-                    />
-                </div>
+                    img={URL.createObjectURL(file)}
+                    alt={file.name}
+                />
             ))}
         </div>
     )
