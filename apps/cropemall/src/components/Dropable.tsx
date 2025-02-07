@@ -42,6 +42,7 @@ const Dropable = () => {
                 absolute inset-0 
                 flex flex-col items-center justify-center 
                 transition-colors duration-200 ease-in-out 
+                cursor-default
                 ${dragging ? 'bg-mf-100/50' : 'bg-white'}
                 hover:bg-mf-100/50
             `}
