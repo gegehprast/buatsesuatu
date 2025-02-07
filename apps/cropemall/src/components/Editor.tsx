@@ -10,8 +10,9 @@ interface CropperProps {
 }
 
 const Editor: React.FC<CropperProps> = ({ img, alt }) => {
-    const container = useRef<HTMLDivElement>(null)
     const [image, position, setPosition] = useMovableWithMouse<HTMLImageElement>()
+    const container = useRef<HTMLDivElement>(null)
+    const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
     const [size, setSize] = useState({ width: 0, height: 0 })
 
     const calculateImageSize = () => {
@@ -22,11 +23,15 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
         // get the container size
         const { width, height } = container.current.getBoundingClientRect()
 
+        // set the container size
+        setContainerSize({ width, height })
+
         // calculate the image size based on the container height
         const ratio = image.current.naturalWidth / image.current.naturalHeight
         const imgWidth = height * ratio
         const imgHeight = height
 
+        // set the image size
         setSize({ width: imgWidth, height: imgHeight })
 
         // set the initial position
@@ -56,7 +61,7 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
                 <div className="absolute w-full h-full bg-mf-900/25 pointer-events-none"></div>
 
                 {/* crop square */}
-                <Cropper image={img} size={size} position={position} />
+                <Cropper containerSize={containerSize} image={img} size={size} position={position} />
             </div>
         </div>
     )
