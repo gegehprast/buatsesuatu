@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 type UseMovableWithMouse<T extends HTMLElement> = [
     React.MutableRefObject<T | null>,
+    Vector,
 ]
 
 const useMovableWithMouse = <
@@ -54,12 +55,12 @@ const useMovableWithMouse = <
             setIsDragging(false)
         }
 
-        window.document.addEventListener('mousemove', handleMouseMove)
-        window.document.addEventListener('mouseup', handleMouseUp)
+        document.addEventListener('mousemove', handleMouseMove)
+        document.addEventListener('mouseup', handleMouseUp)
 
         return () => {
-            window.document.removeEventListener('mousemove', handleMouseMove)
-            window.document.removeEventListener('mouseup', handleMouseUp)
+            document.removeEventListener('mousemove', handleMouseMove)
+            document.removeEventListener('mouseup', handleMouseUp)
         }
     }, [isDragging])
 
@@ -70,7 +71,7 @@ const useMovableWithMouse = <
         }
     }, [position])
 
-    return [elementRef]
+    return [elementRef, position]
 }
 
 export default useMovableWithMouse
