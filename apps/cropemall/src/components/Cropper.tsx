@@ -1,38 +1,61 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import useMovableWithMouse from '@/hooks/useMovableWithMouse'
 import { Vector } from '@cropemall/math'
 
 interface CropperProps {
+    containerSize: { width: number; height: number }
     image: string
     size: { width: number; height: number }
     position: Vector
 }
 
-const Cropper: React.FC<CropperProps> = ({ image, size, position }) => {
-    const [movable, cropperPosition] = useMovableWithMouse<HTMLDivElement>()
-    const cropperSize = { width: 200, height: 200 }
+const Cropper: React.FC<CropperProps> = ({
+    containerSize,
+    image,
+    size: imageSize,
+    position: imagePosition,
+}) => {
+    const [movable, position, setPosition] =
+        useMovableWithMouse<HTMLDivElement>()
 
-    function getRelativePosition() {
-        const imageX = position.x
-        const cropperX = cropperPosition.x
-        const imageY = position.y
-        const cropperY = cropperPosition.y
+    const size = useMemo(() => {
+        let size = containerSize.width * 0.5
+
+        if (imageSize.width < size) {
+            size = imageSize.width
+        }
+
+        return { width: size, height: size }
+    }, [imageSize.width, containerSize.width])
+
+    const relativePosition = useMemo(() => {
+        const imageX = imagePosition.x
+        const cropperX = position.x
+        const imageY = imagePosition.y
+        const cropperY = position.y
 
         return {
             x: (cropperX - imageX) * -1,
             y: (cropperY - imageY) * -1,
         }
-    }
+    }, [imagePosition.x, imagePosition.y, position.x, position.y])
 
-    const relativePosition = getRelativePosition()
+    useEffect(() => {
+        setPosition(
+            new Vector(
+                (containerSize.width - size.width) / 2,
+                (containerSize.height - size.height) / 2,
+            ),
+        )
+    }, [containerSize, setPosition, size.height, size.width])
 
     return (
         <div
             ref={movable}
             className="absolute outline-1 outline-mf-500 overflow-hidden"
             style={{
-                width: `${cropperSize.width}px`,
-                height: `${cropperSize.height}px`,
+                width: `${size.width}px`,
+                height: `${size.height}px`,
             }}
         >
             <img
@@ -40,8 +63,8 @@ const Cropper: React.FC<CropperProps> = ({ image, size, position }) => {
                 alt="img_cropper"
                 className="block select-none max-w-none! max-h-none!"
                 style={{
-                    width: `${size.width}px`,
-                    height: `${size.height}px`,
+                    width: `${imageSize.width}px`,
+                    height: `${imageSize.height}px`,
                     transform: `translate(${relativePosition.x}px, ${relativePosition.y}px)`,
                 }}
             />
