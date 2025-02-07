@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import background from '@/assets/background.png'
 import useMovableWithMouse from '@/hooks/useMovableWithMouse'
 import Cropper from './Cropper'
+import { Vector } from '@cropemall/math'
 
 interface CropperProps {
     img: string
@@ -10,16 +11,16 @@ interface CropperProps {
 
 const Editor: React.FC<CropperProps> = ({ img, alt }) => {
     const container = useRef<HTMLDivElement>(null)
-    const [image, position] = useMovableWithMouse<HTMLImageElement>()
+    const [image, position, setPosition] = useMovableWithMouse<HTMLImageElement>()
     const [size, setSize] = useState({ width: 0, height: 0 })
 
-    const calculateImageSize = useCallback(() => {
+    const calculateImageSize = () => {
         if (!container.current || !image.current) {
             return
         }
 
         // get the container size
-        const { height } = container.current.getBoundingClientRect()
+        const { width, height } = container.current.getBoundingClientRect()
 
         // calculate the image size based on the container height
         const ratio = image.current.naturalWidth / image.current.naturalHeight
@@ -27,11 +28,10 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
         const imgHeight = height
 
         setSize({ width: imgWidth, height: imgHeight })
-    }, [image])
 
-    useEffect(() => {
-        calculateImageSize()
-    }, [calculateImageSize])
+        // set the initial position
+        setPosition(new Vector((width - imgWidth) / 2, 0))
+    }
 
     return (
         <div className="flex flex-col aspect-video p-2">
