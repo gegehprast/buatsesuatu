@@ -25,7 +25,8 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
         }
 
         return { width: size, height: size }
-    }, [containerSize.width, imgSize.width])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [containerSize.width])
 
     const relativePosition = useMemo(() => {
         const imageX = imgPos.x
@@ -68,7 +69,7 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
         setImgPos(new Vector((width - imgWidth) / 2, 0))
     }
 
-    const handleCrop = () => {
+    const crop = () => {
         if (!canvas.current || !image.current) {
             return
         }
@@ -103,6 +104,23 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
         )
     }
 
+    const zoom = (e: React.WheelEvent) => {
+        e.preventDefault()
+
+        if (!image.current) {
+            return
+        }
+        
+        const { width, height } = imgSize
+        const { deltaY } = e
+        const factor = 0.1
+        const aspectRatio = width / height
+        const newWidth = width + deltaY * factor
+        const newHeight = newWidth / aspectRatio
+
+        setImgSize({ width: newWidth, height: newHeight })
+    }
+
     return (
         <div className="relative flex flex-col aspect-video p-2">
             <div
@@ -110,6 +128,7 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
                 className="relative overflow-hidden border border-collapse border-mf-500 aspect-video"
                 style={{ backgroundImage: `url(${background})` }}
                 onDragOver={(e) => e.preventDefault()}
+                onWheel={zoom}
             >
                 <img
                     ref={image}
@@ -137,7 +156,7 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
 
             <div className="w-full flex justify-center mt-2">
                 <button
-                    onClick={handleCrop}
+                    onClick={crop}
                     className="bg-mf-400 p-2 text-white rounded"
                 >
                     Crop
