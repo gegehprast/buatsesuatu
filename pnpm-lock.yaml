@@ -20,6 +20,9 @@ importers:
 
   apps/cropemall:
     dependencies:
+      '@cropemall/math':
+        specifier: workspace:*
+        version: link:../../packages/math
       '@cropemall/ui':
         specifier: workspace:*
         version: link:../../packages/ui

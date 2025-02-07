@@ -11,6 +11,7 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@cropemall/math": "workspace:*",
     "@cropemall/ui": "workspace:*",
     "@tailwindcss/vite": "^4.0.4",
     "lucide-react": "^0.474.0",
