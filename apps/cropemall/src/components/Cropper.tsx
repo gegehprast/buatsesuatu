@@ -1,57 +1,24 @@
-import React, { useEffect, useMemo } from 'react'
-import useMovableWithMouse from '@/hooks/useMovableWithMouse'
+import React from 'react'
 import { Vector } from '@cropemall/math'
 
 interface CropperProps {
-    containerSize: { width: number; height: number }
+    movableRef: React.RefObject<HTMLDivElement>
     image: string
+    imageSize: { width: number; height: number }
+    imagePos: Vector
     size: { width: number; height: number }
-    position: Vector
 }
 
 const Cropper: React.FC<CropperProps> = ({
-    containerSize,
+    movableRef,
     image,
-    size: imageSize,
-    position: imagePosition,
+    imageSize,
+    imagePos,
+    size,
 }) => {
-    const [movable, position, setPosition] =
-        useMovableWithMouse<HTMLDivElement>()
-
-    const size = useMemo(() => {
-        let size = containerSize.width * 0.5
-
-        if (imageSize.width < size) {
-            size = imageSize.width
-        }
-
-        return { width: size, height: size }
-    }, [imageSize.width, containerSize.width])
-
-    const relativePosition = useMemo(() => {
-        const imageX = imagePosition.x
-        const cropperX = position.x
-        const imageY = imagePosition.y
-        const cropperY = position.y
-
-        return {
-            x: (cropperX - imageX) * -1,
-            y: (cropperY - imageY) * -1,
-        }
-    }, [imagePosition.x, imagePosition.y, position.x, position.y])
-
-    useEffect(() => {
-        setPosition(
-            new Vector(
-                (containerSize.width - size.width) / 2,
-                (containerSize.height - size.height) / 2,
-            ),
-        )
-    }, [containerSize, setPosition, size.height, size.width])
-
     return (
         <div
-            ref={movable}
+            ref={movableRef}
             className="absolute outline-1 outline-mf-500 overflow-hidden"
             style={{
                 width: `${size.width}px`,
@@ -65,7 +32,7 @@ const Cropper: React.FC<CropperProps> = ({
                 style={{
                     width: `${imageSize.width}px`,
                     height: `${imageSize.height}px`,
-                    transform: `translate(${relativePosition.x}px, ${relativePosition.y}px)`,
+                    transform: `translate(${imagePos.x}px, ${imagePos.y}px)`,
                 }}
             />
         </div>
