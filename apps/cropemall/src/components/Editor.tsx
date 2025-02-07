@@ -10,13 +10,40 @@ interface CropperProps {
 }
 
 const Editor: React.FC<CropperProps> = ({ img, alt }) => {
-    const [image, imgPos, setImgPos] =
-        useMovableWithMouse<HTMLImageElement>()
-    const [cropper, cropperPos, setCropperPos] =
-            useMovableWithMouse<HTMLDivElement>()
+    const canvas = useRef<HTMLCanvasElement>(null)
+    const [image, imgPos, setImgPos] = useMovableWithMouse<HTMLImageElement>()
+    const [cropper, cropperPos, setCropperPos] = useMovableWithMouse<HTMLDivElement>()
     const container = useRef<HTMLDivElement>(null)
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
     const [imgSize, setImgSize] = useState({ width: 0, height: 0 })
+
+    const cropperSize = useMemo(() => {
+        let size = containerSize.width * 0.5
+
+        if (imgSize.width < size) {
+            size = imgSize.width * 0.8
+        }
+
+        return { width: size, height: size }
+    }, [containerSize.width, imgSize.width])
+
+    const relativePosition = useMemo(() => {
+        const imageX = imgPos.x
+        const cropperX = cropperPos.x
+        const imageY = imgPos.y
+        const cropperY = cropperPos.y
+
+        return new Vector((cropperX - imageX) * -1, (cropperY - imageY) * -1)
+    }, [cropperPos.x, cropperPos.y, imgPos.x, imgPos.y])
+
+    useEffect(() => {
+        setCropperPos(
+            new Vector(
+                (containerSize.width - cropperSize.width) / 2,
+                (containerSize.height - cropperSize.height) / 2,
+            ),
+        )
+    }, [containerSize.height, containerSize.width, cropperSize.height, cropperSize.width, setCropperPos])
 
     const calculateImageSize = () => {
         if (!container.current || !image.current) {
@@ -42,36 +69,51 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
     }
 
     const handleCrop = () => {
-        console.log('Cropped', imgPos)
-    }
-
-    const cropperSize = useMemo(() => {
-        let size = containerSize.width * 0.5
-
-        if (imgSize.width < size) {
-            size = imgSize.width
+        if (!canvas.current || !image.current) {
+            return
         }
 
-        return { width: size, height: size }
-    }, [containerSize.width, imgSize.width])
+        const ctx = canvas.current.getContext('2d')
 
-    const relativePosition = useMemo(() => {
-        const imageX = imgPos.x
-        const cropperX = cropperPos.x
-        const imageY = imgPos.y
-        const cropperY = cropperPos.y
+        if (!ctx) {
+            return
+        }
+        
+        const virtualImageSize = imgSize
+        const ratioToNatural = image.current.naturalWidth / virtualImageSize.width
+        const actualCropperSize = {
+            width: cropperSize.width * ratioToNatural,
+            height: cropperSize.height * ratioToNatural,
+        }
+        
+        // const distCropperToImage = {
+        //     x: cropperPos.x - imgPos.x,
+        //     y: cropperPos.y - imgPos.y,
+        // }
 
-        return new Vector((cropperX - imageX) * -1, (cropperY - imageY) * -1)
-    }, [cropperPos.x, cropperPos.y, imgPos.x, imgPos.y])
+        // const actualPosition = {
+        //     x: distCropperToImage.x * ratioToNatural,
+        //     y: distCropperToImage.y * ratioToNatural,
+        // }
 
-    useEffect(() => {
-        setCropperPos(
-            new Vector(
-                (containerSize.width - cropperSize.width) / 2,
-                (containerSize.height - cropperSize.height) / 2,
-            ),
+        const distCropperToImage = cropperPos.sub(imgPos)
+        const actualPosition = distCropperToImage.mult(ratioToNatural)
+        
+        ctx.canvas.width = actualCropperSize.width
+        ctx.canvas.height = actualCropperSize.height
+
+        ctx.drawImage(
+            image.current,
+            actualPosition.x,
+            actualPosition.y,
+            actualCropperSize.width,
+            actualCropperSize.height,
+            0,
+            0,
+            actualCropperSize.width,
+            actualCropperSize.height,
         )
-    }, [containerSize.height, containerSize.width, cropperSize.height, cropperSize.width, setCropperPos])
+    }
 
     return (
         <div className="relative flex flex-col aspect-video p-2">
@@ -112,6 +154,10 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
                 >
                     Crop
                 </button>
+            </div>
+
+            <div className="relative w-full overflow-auto mt-2 bg-mf-100">
+                <canvas ref={canvas} className="block bg-white" />
             </div>
         </div>
     )
