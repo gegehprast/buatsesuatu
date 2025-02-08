@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import background from '@/assets/background.png'
 import useMovableWithMouse from '@/hooks/useMovableWithMouse'
 import Cropper from './Cropper'
@@ -17,7 +17,7 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
     const [imgSize, setImgSize] = useState({ width: 0, height: 0 })
 
-    const cropperSize = useMemo(() => {
+    const cropperSize = (() => {
         let size = containerSize.width * 0.5
 
         if (imgSize.width < size) {
@@ -25,17 +25,16 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
         }
 
         return { width: size, height: size }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [containerSize.width])
+    })()
 
-    const relativePosition = useMemo(() => {
+    const relativePosition = (() => {
         const imageX = imgPos.x
         const cropperX = cropperPos.x
         const imageY = imgPos.y
         const cropperY = cropperPos.y
 
         return new Vector((cropperX - imageX) * -1, (cropperY - imageY) * -1)
-    }, [cropperPos.x, cropperPos.y, imgPos.x, imgPos.y])
+    })()
 
     useEffect(() => {
         setCropperPos(
