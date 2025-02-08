@@ -2,7 +2,7 @@ import React from 'react'
 import { Vector } from '@cropemall/math'
 
 interface CropperProps {
-    movableRef: React.RefObject<HTMLDivElement>
+    movableRef: React.RefObject<HTMLDivElement | null>
     image: string
     imageSize: { width: number; height: number }
     imagePos: Vector
