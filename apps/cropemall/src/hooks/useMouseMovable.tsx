@@ -2,15 +2,16 @@ import { Vector } from '@cropemall/math'
 import React, { useEffect, useRef, useState } from 'react'
 
 type UseMovableWithMouse<T extends HTMLElement> = [
-    React.MutableRefObject<T | null>,
+    React.RefObject<T | null>,
     Vector,
     React.Dispatch<React.SetStateAction<Vector>>,
 ]
 
-const useMovableWithMouse = <
+const useMouseMovable = <
     T extends HTMLElement,
 >(): UseMovableWithMouse<T> => {
     const elementRef = useRef<T>(null)
+    console.log('useMouseMovable', elementRef.current)
     const startPos = useRef(new Vector(0, 0))
     const currPos = useRef(new Vector(0, 0))
 
@@ -26,6 +27,7 @@ const useMovableWithMouse = <
 
         function handleMouseDown(e: MouseEvent) {
             e.preventDefault()
+            console.log('handleMouseDown', e)
             startPos.current = new Vector(e.clientX, e.clientY)
             setIsDragging(true)
         }
@@ -75,4 +77,4 @@ const useMovableWithMouse = <
     return [elementRef, position, setPosition]
 }
 
-export default useMovableWithMouse
+export default useMouseMovable
