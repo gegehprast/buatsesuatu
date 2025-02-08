@@ -1,5 +1,5 @@
 import Dropable from './components/Dropable'
-import Editor from './components/Editor'
+import Canvas from './components/Canvas'
 import Sidebar from './components/Sidebar'
 import useFileStore from './hooks/useFileStore'
 
@@ -11,7 +11,7 @@ function App() {
             <main className="relative flex flex-col flex-1 overflow-auto">
                 {files.length === 0 && <Dropable />}
 
-                {files.length > 0 && <Editor />}
+                {files.length > 0 && <Canvas />}
             </main>
 
             <Sidebar />

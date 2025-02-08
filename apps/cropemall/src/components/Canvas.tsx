@@ -1,15 +1,15 @@
 import useFileStore from '@/hooks/useFileStore'
-import Editor from './Editor'
+import Croppa from './Croppa'
 
 const Canvas = () => {
     const files = useFileStore((s) => s.files)
 
     return (
-        <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 xl:grid-cols-3">
             {files.map((file) => (
-                <Editor
+                <Croppa
                     key={file.name}
-                    img={URL.createObjectURL(file)}
+                    src={URL.createObjectURL(file)}
                     alt={file.name}
                 />
             ))}
