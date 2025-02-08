@@ -1,8 +1,46 @@
 import React, { useEffect, useRef, useState } from 'react'
 import background from '@/assets/background.png'
-import useMovableWithMouse from '@/hooks/useMovableWithMouse'
+import useMouseMovable from '@/hooks/useMouseMovable'
 import Cropper from './Cropper'
 import { Vector } from '@cropemall/math'
+
+const crop = (image: HTMLImageElement, renderedImageSize: { width: number, height: number }, cropperSize: { width: number, height: number }, cropperPos: Vector, renderedImagePosition: Vector) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+
+    if (!ctx) {
+        return
+    }
+
+    const ratioToNatural = image.naturalWidth / renderedImageSize.width
+    const actualCropperSize = {
+        width: cropperSize.width * ratioToNatural,
+        height: cropperSize.height * ratioToNatural,
+    }
+    const distCropperToImage = cropperPos.sub(renderedImagePosition)
+    const actualPosition = distCropperToImage.mult(ratioToNatural)
+
+    ctx.canvas.width = actualCropperSize.width
+    ctx.canvas.height = actualCropperSize.height
+
+    ctx.drawImage(
+        image,
+        actualPosition.x,
+        actualPosition.y,
+        actualCropperSize.width,
+        actualCropperSize.height,
+        0,
+        0,
+        actualCropperSize.width,
+        actualCropperSize.height,
+    )
+    
+    const data = canvas.toDataURL('image/png')
+    const link = document.createElement('a')
+    link.href = data
+    link.download = 'cropped.png'
+    link.click()
+}
 
 interface CropperProps {
     img: string
@@ -10,9 +48,8 @@ interface CropperProps {
 }
 
 const Editor: React.FC<CropperProps> = ({ img, alt }) => {
-    const canvas = useRef<HTMLCanvasElement>(null)
-    const [image, imgPos, setImgPos] = useMovableWithMouse<HTMLImageElement>()
-    const [cropper, cropperPos, setCropperPos] = useMovableWithMouse<HTMLDivElement>()
+    const [image, imgPos, setImgPos] = useMouseMovable<HTMLImageElement>()
+    const [cropper, cropperPos, setCropperPos] = useMouseMovable<HTMLDivElement>()
     const container = useRef<HTMLDivElement>(null)
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
     const [imgSize, setImgSize] = useState({ width: 0, height: 0 })
@@ -43,9 +80,15 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
                 (containerSize.height - cropperSize.height) / 2,
             ),
         )
-    }, [containerSize.height, containerSize.width, cropperSize.height, cropperSize.width, setCropperPos])
+    }, [
+        containerSize.height,
+        containerSize.width,
+        cropperSize.height,
+        cropperSize.width,
+        setCropperPos,
+    ])
 
-    const calculateImageSize = () => {
+    const initialize = () => {
         if (!container.current || !image.current) {
             return
         }
@@ -68,41 +111,6 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
         setImgPos(new Vector((width - imgWidth) / 2, 0))
     }
 
-    const crop = () => {
-        if (!canvas.current || !image.current) {
-            return
-        }
-
-        const ctx = canvas.current.getContext('2d')
-
-        if (!ctx) {
-            return
-        }
-        
-        const ratioToNatural = image.current.naturalWidth / imgSize.width
-        const actualCropperSize = {
-            width: cropperSize.width * ratioToNatural,
-            height: cropperSize.height * ratioToNatural,
-        }
-        const distCropperToImage = cropperPos.sub(imgPos)
-        const actualPosition = distCropperToImage.mult(ratioToNatural)
-        
-        ctx.canvas.width = actualCropperSize.width
-        ctx.canvas.height = actualCropperSize.height
-
-        ctx.drawImage(
-            image.current,
-            actualPosition.x,
-            actualPosition.y,
-            actualCropperSize.width,
-            actualCropperSize.height,
-            0,
-            0,
-            actualCropperSize.width,
-            actualCropperSize.height,
-        )
-    }
-
     const zoom = (e: React.WheelEvent) => {
         e.preventDefault()
 
@@ -121,7 +129,7 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
     }
 
     return (
-        <div className="relative flex flex-col aspect-video p-2">
+        <div className="relative flex flex-col aspect-video p-2 bg-gray-200 border border-mf-500 rounded">
             <div
                 ref={container}
                 className="relative overflow-hidden border border-collapse border-mf-500 aspect-video"
@@ -138,7 +146,7 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
                         width: `${imgSize.width}px`,
                         height: `${imgSize.height}px`,
                     }}
-                    onLoad={calculateImageSize}
+                    onLoad={initialize}
                 />
 
                 <div className="absolute w-full h-full bg-mf-900/25 pointer-events-none"></div>
@@ -153,18 +161,14 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
                 />
             </div>
 
-            <div className="w-full flex justify-center mt-2">
+            {image.current && (<div className="w-full flex justify-center mt-2">
                 <button
-                    onClick={crop}
+                    onClick={() => crop(image.current!, imgSize, cropperSize, cropperPos, imgPos)}
                     className="bg-mf-400 p-2 text-white rounded"
                 >
                     Crop
                 </button>
-            </div>
-
-            <div className="relative w-full overflow-auto mt-2 bg-mf-100">
-                <canvas ref={canvas} className="block bg-white" />
-            </div>
+            </div>)}
         </div>
     )
 }
