@@ -75,7 +75,7 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
 
     useEffect(() => {
         setCropperPos(
-            new Vector(
+            () => new Vector(
                 (containerSize.width - cropperSize.width) / 2,
                 (containerSize.height - cropperSize.height) / 2,
             ),
@@ -108,7 +108,7 @@ const Editor: React.FC<CropperProps> = ({ img, alt }) => {
         setImgSize({ width: imgWidth, height: imgHeight })
 
         // set the initial position
-        setImgPos(new Vector((width - imgWidth) / 2, 0))
+        setImgPos(() => new Vector((width - imgWidth) / 2, 0))
     }
 
     const zoom = (e: React.WheelEvent) => {
