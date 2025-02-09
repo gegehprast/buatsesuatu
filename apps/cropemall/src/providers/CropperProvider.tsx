@@ -4,9 +4,14 @@ import CropperContext from '../contexts/CropperContext'
 import { download } from '@/libs/download'
 import { Vector } from '@cropemall/math'
 
+export type CropperProviderMethods = {
+    download: () => void
+    reset: () => void
+}
+
 interface CropperProviderProps {
     children: React.ReactNode
-    ref: React.RefObject<{ download: () => void } | null>
+    ref: React.RefObject<CropperProviderMethods | null>
 }
 
 const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
@@ -66,8 +71,8 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
                 setCropPos(
                     () => new Vector((cWidth - size) / 2, (cHeight - size) / 2),
                     {
-                        top: imgPos.y,
                         left: imgPos.x,
+                        top: imgPos.y,
                         right: imgPos.x + imgSize.width,
                         bottom: imgPos.y + imgSize.height,
                     },
