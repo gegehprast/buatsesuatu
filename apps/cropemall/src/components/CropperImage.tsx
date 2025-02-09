@@ -62,7 +62,7 @@ const CropperImage: React.FC<CropperImageProps> = ({ src, ...props }) => {
                     width: `${imgSize.width}px`,
                     height: `${imgSize.height}px`,
                 }}
-                className={`absolute select-none ${props.className || ''}`}
+                className={`absolute block select-none ${props.className || ''} max-w-none! max-h-none!`}
                 {...props}
             />
 
