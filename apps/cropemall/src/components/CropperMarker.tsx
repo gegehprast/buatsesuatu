@@ -1,6 +1,7 @@
 import { useCropper } from '@/hooks/useCropper'
 import { Vector } from '@cropemall/math'
 import { useEffect } from 'react'
+import CropperMarkerHandler from './CropperMarkerHandler'
 
 const CropperMarker: React.FC = () => {
     const {
@@ -33,10 +34,11 @@ const CropperMarker: React.FC = () => {
         setCropInitialized(true)
 
         setCropPos(
-            new Vector(
-                (containerSize.width - size) / 2,
-                (containerSize.height - size) / 2,
-            ),
+            () =>
+                new Vector(
+                    (containerSize.width - size) / 2,
+                    (containerSize.height - size) / 2,
+                ),
         )
     }, [
         containerInitialized,
@@ -60,25 +62,45 @@ const CropperMarker: React.FC = () => {
     })()
 
     return (
-        <div
-            ref={crop}
-            className="absolute outline-1 outline-mf-500 overflow-hidden"
-            style={{
-                width: `${cropSize.width}px`,
-                height: `${cropSize.height}px`,
-            }}
-        >
-            <img
-                src={img.current?.src}
-                alt="img_cropper"
-                className="block select-none pointer-events-none max-w-none! max-h-none!"
+        <>
+            <div
+                ref={crop}
+                className="absolute outline-1 outline-mf-500"
                 style={{
-                    width: `${imgSize.width}px`,
-                    height: `${imgSize.height}px`,
-                    transform: `translate(${relativePosition.x}px, ${relativePosition.y}px)`,
+                    width: `${cropSize.width}px`,
+                    height: `${cropSize.height}px`,
+                }}
+            >
+                <div className="w-full h-full overflow-hidden">
+                    <img
+                        src={img.current?.src}
+                        alt="img_cropper"
+                        className="block select-none pointer-events-none max-w-none! max-h-none!"
+                        style={{
+                            width: `${imgSize.width}px`,
+                            height: `${imgSize.height}px`,
+                            transform: `translate(${relativePosition.x}px, ${relativePosition.y}px)`,
+                        }}
+                    />
+                </div>
+
+                <CropperMarkerHandler type="top" />
+                <CropperMarkerHandler type="bottom" />
+                <CropperMarkerHandler type="left" />
+                <CropperMarkerHandler type="right" />
+                <CropperMarkerHandler type="top-left" />
+                <CropperMarkerHandler type="top-right" />
+                <CropperMarkerHandler type="bottom-left" />
+                <CropperMarkerHandler type="bottom-right" />
+            </div>
+
+            <div
+                className={`absolute w-1 h-1 left-0 top-0 bg-green-500`}
+                style={{
+                    transform: `translate(${cropPos.x}px, ${cropPos.y}px)`,
                 }}
             />
-        </div>
+        </>
     )
 }
 
