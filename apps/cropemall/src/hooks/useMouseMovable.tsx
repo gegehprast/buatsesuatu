@@ -1,10 +1,22 @@
 import { Vector } from '@cropemall/math'
 import React, { useEffect, useRef, useState } from 'react'
 
+export type Edges = {
+    top?: number
+    right?: number
+    bottom?: number
+    left?: number
+}
+
+export type UseMouseMovableSetPosition = (
+    setter: (pos: Vector) => Vector,
+    edges?: Edges,
+) => void
+
 const constraint = <T extends HTMLElement>(
     element: T,
     pos: Vector,
-    edges?: { top?: number; right?: number; bottom?: number; left?: number },
+    edges?: Edges,
 ) => {
     const newPos = pos.copy()
     const { width, height } = element.getBoundingClientRect()
@@ -30,15 +42,12 @@ const constraint = <T extends HTMLElement>(
     return newPos
 }
 
-const useMouseMovable = <T extends HTMLElement>(edges?: {
-    top?: number
-    right?: number
-    bottom?: number
-    left?: number
-}): [
+const useMouseMovable = <T extends HTMLElement>(
+    edges?: Edges,
+): [
     React.RefObject<T | null>,
     Vector,
-    (setter: (pos: Vector) => Vector) => void,
+    UseMouseMovableSetPosition,
 ] => {
     const elementRef = useRef<T>(null)
     const startPos = useRef(new Vector(0, 0))
@@ -59,7 +68,7 @@ const useMouseMovable = <T extends HTMLElement>(edges?: {
             function handleMouseMove(e: MouseEvent) {
                 e.preventDefault()
                 e.stopPropagation()
-                
+
                 currPos.current = new Vector(e.clientX, e.clientY)
 
                 const force = currPos.current.sub(startPos.current)
@@ -102,13 +111,13 @@ const useMouseMovable = <T extends HTMLElement>(edges?: {
         elementRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`
     }, [position])
 
-    const _setPosition = (setter: (pos: Vector) => Vector) => {
+    const _setPosition: UseMouseMovableSetPosition = (setter, _edges) => {
         setPosition((pos) => {
             const newPos = setter(pos)
 
             if (!elementRef.current) return newPos
 
-            return constraint(elementRef.current, newPos, edges)
+            return constraint(elementRef.current, newPos, _edges || edges)
         })
     }
 

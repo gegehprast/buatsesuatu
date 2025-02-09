@@ -1,3 +1,4 @@
+import { UseMouseMovableSetPosition } from '@/hooks/useMouseMovable';
 import { Vector } from '@cropemall/math'
 import React, { createContext } from 'react'
 
@@ -27,8 +28,8 @@ interface CropperContextValue {
 
     imgPos: Vector
     cropPos: Vector
-    setImgPos: (setter: (pos: Vector) => Vector) => void
-    setCropPos: (setter: (pos: Vector) => Vector) => void
+    setImgPos: UseMouseMovableSetPosition
+    setCropPos: UseMouseMovableSetPosition
 }
 
 const CropperContext = createContext<CropperContextValue>({
