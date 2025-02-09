@@ -2,6 +2,7 @@ import background from '@/assets/background.png'
 import { useCropper } from '@/hooks/useCropper'
 import React, { useEffect } from 'react'
 import CropperMarker from './CropperMarker'
+import { Vector } from '@cropemall/math'
 
 interface CropperContainerProps {
     children: React.ReactNode
@@ -15,6 +16,8 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
         setContainerSize,
         imgSize,
         setImgSize,
+        imgPos,
+        setImgPos,
     } = useCropper()
 
     useEffect(() => {
@@ -25,12 +28,20 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
         const zoom = (e: WheelEvent) => {
             e.preventDefault()
 
-            const factor = 0.1
+            const factor = 0.4
             const aspectRatio = imgSize.width / imgSize.height
-            const width = imgSize.width + e.deltaY * factor
-            const height = width / aspectRatio
+            const newWidth = imgSize.width + e.deltaY * factor
+            const newHeight = newWidth / aspectRatio
 
-            setImgSize({ width, height })
+            const rect = containerEl.getBoundingClientRect()
+            const offsetX = (e.clientX - rect.left - imgPos.x) / imgSize.width
+            const offsetY = (e.clientY - rect.top - imgPos.y) / imgSize.height
+
+            const newImgPosX = imgPos.x - (newWidth - imgSize.width) * offsetX
+            const newImgPosY = imgPos.y - (newHeight - imgSize.height) * offsetY
+
+            setImgSize({ width: newWidth, height: newHeight })
+            setImgPos(() => new Vector(newImgPosX, newImgPosY))
         }
 
         containerEl.addEventListener('wheel', zoom, { passive: false })
@@ -46,15 +57,7 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
         return () => {
             containerEl.removeEventListener('wheel', zoom)
         }
-    }, [
-        container,
-        containerInitialized,
-        imgSize.height,
-        imgSize.width,
-        setContainerInitialized,
-        setContainerSize,
-        setImgSize,
-    ])
+    }, [container, containerInitialized, imgPos.x, imgPos.y, imgSize.height, imgSize.width, setContainerInitialized, setContainerSize, setImgPos, setImgSize])
 
     return (
         <div
