@@ -1,13 +1,19 @@
 import useFileStore from '@/hooks/useFileStore'
-import Croppa from './Croppa'
+import Croppa, { CroppaMethods } from './Croppa'
+import React from 'react'
 
-const Canvas = () => {
+interface CanvasProps {
+    croppaRefs: React.RefObject<React.RefObject<CroppaMethods | null>[]>
+}
+
+const Canvas: React.FC<CanvasProps> = ({ croppaRefs }) => {
     const files = useFileStore((s) => s.files)
 
     return (
         <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 xl:grid-cols-3">
-            {files.map((file) => (
+            {files.map((file, i) => (
                 <Croppa
+                    ref={croppaRefs.current[i]}
                     key={file.name}
                     src={URL.createObjectURL(file)}
                     alt={file.name}

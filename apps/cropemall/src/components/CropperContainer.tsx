@@ -77,7 +77,7 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
 
 const CropperBackdrop: React.FC = () => {
     return (
-        <div className="absolute w-full h-full bg-mf-900/25 pointer-events-none"></div>
+        <div className="absolute w-full h-full bg-gray-900/30 pointer-events-none"></div>
     )
 }
 
