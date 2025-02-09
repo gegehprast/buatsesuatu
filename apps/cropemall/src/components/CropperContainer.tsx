@@ -1,6 +1,6 @@
 import background from '@/assets/background.png'
 import { useCropper } from '@/hooks/useCropper'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import CropperMarker from './CropperMarker'
 import { Vector } from '@cropemall/math'
 
@@ -13,42 +13,23 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
         containerInitialized,
         setContainerInitialized,
         container,
+        img,
+        crop,
         setContainerSize,
         imgSize,
         setImgSize,
         imgPos,
         setImgPos,
     } = useCropper()
-    const [isControlPressed, setIsControlPressed] = useState(false)
-
-    useEffect(() => {
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key !== 'Control') return
-            
-            setIsControlPressed(true)
-        }
-
-        const onKeyUp = () => {
-            setIsControlPressed(false)
-        }
-
-        document.body.addEventListener('keydown', onKeyDown)
-        document.body.addEventListener('keyup', onKeyUp)
-
-        return () => {
-            document.body.removeEventListener('keydown', onKeyDown)
-            document.body.removeEventListener('keyup', onKeyUp)
-        }
-    }, [])
 
     useEffect(() => {
         const containerEl = container.current
+        const imgEl = img.current
+        const cropEl = crop.current
 
-        if (!containerEl) return
+        if (!containerEl || !imgEl || !cropEl) return
 
         const zoom = (e: WheelEvent) => {
-            if (!isControlPressed) return
-
             e.preventDefault()
 
             const factor = 0.2
@@ -67,12 +48,14 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
             setImgPos(() => new Vector(newImgPosX, newImgPosY))
         }
 
-        containerEl.addEventListener('wheel', zoom, { passive: false })
+        imgEl.addEventListener('wheel', zoom, { passive: false })
+        cropEl.addEventListener('wheel', zoom, { passive: false })
 
         return () => {
-            containerEl.removeEventListener('wheel', zoom)
+            imgEl.removeEventListener('wheel', zoom)
+            cropEl.removeEventListener('wheel', zoom)
         }
-    }, [container, imgPos.x, imgPos.y, imgSize.height, imgSize.width, isControlPressed, setImgPos, setImgSize])
+    }, [container, crop, img, imgPos.x, imgPos.y, imgSize.height, imgSize.width, setImgPos, setImgSize])
 
     useEffect(() => {
         const containerEl = container.current
