@@ -71,6 +71,10 @@ class Vector {
     public static down() {
         return new Vector(0, 1)
     }
+
+    public static zero() {
+        return new Vector(0, 0)
+    }
 }
 
 export default Vector
