@@ -51,9 +51,13 @@ const Dropable = () => {
             onDrop={handleDrop}
             onClick={handleClick}
         >
-            <h1 className="text-2xl font-semibold text-mf-600">
-                Drop files here
+            <h1 className="p-4 text-4xl font-semibold text-center text-mf-600">
+                cropemall
             </h1>
+
+            <h2 className="text-xl font-semibold text-mf-600">
+                Drop files here
+            </h2>
 
             <p className="text-gray-500">or click to select files</p>
         </div>
