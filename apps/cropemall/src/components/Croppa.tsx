@@ -9,12 +9,18 @@ interface CroppaProps {
 }
 
 const Croppa: React.FC<CroppaProps> = ({ src, alt }) => {
-    const cropper = useRef<{ download: () => void }>(null)
+    const cropper = useRef<{ download: () => void, reset: () => void }>(null)
 
     const crop = () => {
         if (!cropper.current) return
 
         cropper.current.download()
+    }
+
+    const reset = () => {
+        if (!cropper.current) return
+
+        cropper.current.reset()
     }
 
     return (
@@ -26,8 +32,12 @@ const Croppa: React.FC<CroppaProps> = ({ src, alt }) => {
             </CropperProvider>
 
             <div className="flex justify-center gap-2 mt-2">
-                <button className="bg-mf-500 text-white p-1" onClick={crop}>Crop</button>
-                <button className="bg-mf-500 text-white p-1">Cancel</button>
+                <button className="bg-mf-500 text-white p-1" onClick={crop}>
+                    Crop
+                </button>
+                <button className="bg-mf-500 text-white p-1" onClick={reset}>
+                    Cancel
+                </button>
             </div>
         </div>
     )
