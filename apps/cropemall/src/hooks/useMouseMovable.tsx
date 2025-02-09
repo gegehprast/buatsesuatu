@@ -7,28 +7,47 @@ type UseMovableWithMouse<T extends HTMLElement> = [
     React.Dispatch<React.SetStateAction<Vector>>,
 ]
 
-const useMouseMovable = <
-    T extends HTMLElement,
->(): UseMovableWithMouse<T> => {
+const useMouseMovable = <T extends HTMLElement>(): UseMovableWithMouse<T> => {
     const elementRef = useRef<T>(null)
     const startPos = useRef(new Vector(0, 0))
     const currPos = useRef(new Vector(0, 0))
-
-    const [isDragging, setIsDragging] = useState(false)
     const [position, setPosition] = useState(new Vector(0, 0))
 
     useEffect(() => {
         const element = elementRef.current
 
-        if (!element) {
-            return
-        }
+        if (!element) return
 
         function handleMouseDown(e: MouseEvent) {
             e.preventDefault()
             e.stopPropagation()
+
             startPos.current = new Vector(e.clientX, e.clientY)
-            setIsDragging(true)
+
+            function handleMouseMove(e: MouseEvent) {
+                e.preventDefault()
+                e.stopPropagation()
+
+                currPos.current = new Vector(e.clientX, e.clientY)
+
+                const force = currPos.current.sub(startPos.current)
+
+                setPosition((pos) => pos.add(force))
+
+                startPos.current = currPos.current
+            }
+
+            function handleMouseUp(e: MouseEvent) {
+                e.preventDefault()
+                e.stopPropagation()
+
+                document.body.removeEventListener('mousemove', handleMouseMove)
+            }
+
+            document.body.addEventListener('mousemove', handleMouseMove)
+            document.body.addEventListener('mouseup', handleMouseUp, {
+                once: true,
+            })
         }
 
         element.addEventListener('mousedown', handleMouseDown)
@@ -39,38 +58,10 @@ const useMouseMovable = <
     }, [])
 
     useEffect(() => {
-        function handleMouseMove(e: MouseEvent) {
-            if (!isDragging) {
-                return
-            }
+        if (!elementRef.current) return
 
-            currPos.current = new Vector(e.clientX, e.clientY)
-
-            const force = currPos.current.sub(startPos.current)
-
-            setPosition((pos) => pos.add(force))
-
-            startPos.current = currPos.current
-        }
-
-        function handleMouseUp() {
-            setIsDragging(false)
-        }
-
-        document.addEventListener('mousemove', handleMouseMove)
-        document.addEventListener('mouseup', handleMouseUp)
-
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove)
-            document.removeEventListener('mouseup', handleMouseUp)
-        }
-    }, [isDragging])
-
-    useEffect(() => {
-        if (elementRef.current) {
-            elementRef.current.style.cursor = 'move'
-            elementRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`
-        }
+        elementRef.current.style.cursor = 'move'
+        elementRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`
     }, [position])
 
     return [elementRef, position, setPosition]
