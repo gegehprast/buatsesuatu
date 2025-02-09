@@ -1,6 +1,8 @@
 import { Vector } from '@cropemall/math'
 import React, { createContext } from 'react'
 
+export type Size = { width: number; height: number }
+
 interface CropperContextValue {
     imageLoaded: boolean
     setImageLoaded: (loaded: boolean) => void
@@ -16,12 +18,12 @@ interface CropperContextValue {
     img: React.RefObject<HTMLImageElement | null>
     crop: React.RefObject<HTMLDivElement | null>
 
-    containerSize: { width: number; height: number }
-    imgSize: { width: number; height: number }
-    cropSize: { width: number; height: number }
-    setContainerSize: (size: { width: number; height: number }) => void
-    setImgSize: (size: { width: number; height: number }) => void
-    setCropSize: (size: { width: number; height: number }) => void
+    containerSize: Size
+    imgSize: Size
+    cropSize: Size
+    setContainerSize: React.Dispatch<React.SetStateAction<Size>>
+    setImgSize: React.Dispatch<React.SetStateAction<Size>>
+    setCropSize: React.Dispatch<React.SetStateAction<Size>>
 
     imgPos: Vector
     cropPos: Vector
