@@ -11,7 +11,6 @@ const useMouseMovable = <
     T extends HTMLElement,
 >(): UseMovableWithMouse<T> => {
     const elementRef = useRef<T>(null)
-    console.log('useMouseMovable', elementRef.current)
     const startPos = useRef(new Vector(0, 0))
     const currPos = useRef(new Vector(0, 0))
 
@@ -27,7 +26,7 @@ const useMouseMovable = <
 
         function handleMouseDown(e: MouseEvent) {
             e.preventDefault()
-            console.log('handleMouseDown', e)
+            e.stopPropagation()
             startPos.current = new Vector(e.clientX, e.clientY)
             setIsDragging(true)
         }
