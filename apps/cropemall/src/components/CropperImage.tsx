@@ -33,7 +33,7 @@ const CropperImage: React.FC<CropperImageProps> = ({ src, ...props }) => {
 
         setImgSize({ width, height })
 
-        setImgPos(new Vector((containerSize.width - width) / 2, 0))
+        setImgPos(() => new Vector((containerSize.width - width) / 2, 0))
 
         setImageInitialized(true)
     }, [

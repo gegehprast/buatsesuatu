@@ -1,6 +1,35 @@
 import { Vector } from '@cropemall/math'
 import React, { useEffect, useRef, useState } from 'react'
 
+const constraint = <T extends HTMLElement>(
+    element: T,
+    pos: Vector,
+    edges?: { top?: number; right?: number; bottom?: number; left?: number },
+) => {
+    const newPos = pos.copy()
+    const { width, height } = element.getBoundingClientRect()
+
+    if (edges) {
+        if (edges.top !== undefined) {
+            newPos.y = Math.max(edges.top, newPos.y)
+        }
+
+        if (edges.right !== undefined) {
+            newPos.x = Math.min(edges.right - width, newPos.x)
+        }
+
+        if (edges.bottom !== undefined) {
+            newPos.y = Math.min(edges.bottom - height, newPos.y)
+        }
+
+        if (edges.left !== undefined) {
+            newPos.x = Math.max(edges.left, newPos.x)
+        }
+    }
+
+    return newPos
+}
+
 const useMouseMovable = <T extends HTMLElement>(edges?: {
     top?: number
     right?: number
@@ -9,7 +38,7 @@ const useMouseMovable = <T extends HTMLElement>(edges?: {
 }): [
     React.RefObject<T | null>,
     Vector,
-    React.Dispatch<React.SetStateAction<Vector>>,
+    (setter: (pos: Vector) => Vector) => void,
 ] => {
     const elementRef = useRef<T>(null)
     const startPos = useRef(new Vector(0, 0))
@@ -30,35 +59,17 @@ const useMouseMovable = <T extends HTMLElement>(edges?: {
             function handleMouseMove(e: MouseEvent) {
                 e.preventDefault()
                 e.stopPropagation()
-
-                const { width, height } = element?.getBoundingClientRect() || { width: 0, height: 0 }
+                
                 currPos.current = new Vector(e.clientX, e.clientY)
 
                 const force = currPos.current.sub(startPos.current)
 
                 setPosition((pos) => {
-                    let x = pos.x + force.x
-                    let y = pos.y + force.y
+                    const newPos = pos.add(force)
 
-                    if (edges) {
-                        if (edges.top !== undefined) {
-                            y = Math.max(edges.top, y)
-                        }
+                    if (!element) return newPos
 
-                        if (edges.right !== undefined) {
-                            x = Math.min(edges.right - width, x)
-                        }
-
-                        if (edges.bottom !== undefined) {
-                            y = Math.min(edges.bottom - height, y)
-                        }
-
-                        if (edges.left !== undefined) {
-                            x = Math.max(edges.left, x)
-                        }
-                    }
-
-                    return new Vector(x, y)
+                    return constraint(element, newPos, edges)
                 })
 
                 startPos.current = currPos.current
@@ -91,7 +102,17 @@ const useMouseMovable = <T extends HTMLElement>(edges?: {
         elementRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`
     }, [position])
 
-    return [elementRef, position, setPosition]
+    const _setPosition = (setter: (pos: Vector) => Vector) => {
+        setPosition((pos) => {
+            const newPos = setter(pos)
+
+            if (!elementRef.current) return newPos
+
+            return constraint(elementRef.current, newPos, edges)
+        })
+    }
+
+    return [elementRef, position, _setPosition]
 }
 
 export default useMouseMovable

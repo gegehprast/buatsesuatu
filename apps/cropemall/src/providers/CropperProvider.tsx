@@ -53,7 +53,7 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
                 const width = cHeight * ratio
                 const height = cHeight
                 setImgSize({ width, height })
-                setImgPos(new Vector((cWidth - width) / 2, 0))
+                setImgPos(() => new Vector((cWidth - width) / 2, 0))
 
                 // reset crop size and position
                 let size = cWidth * 0.5
@@ -64,7 +64,7 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
 
                 setCropSize({ width: size, height: size })
                 setCropPos(
-                    new Vector((cWidth - size) / 2, (cHeight - size) / 2),
+                    () => new Vector((cWidth - size) / 2, (cHeight - size) / 2),
                 )
             },
         }

@@ -27,8 +27,8 @@ interface CropperContextValue {
 
     imgPos: Vector
     cropPos: Vector
-    setImgPos: (pos: Vector) => void
-    setCropPos: (pos: Vector) => void
+    setImgPos: (setter: (pos: Vector) => Vector) => void
+    setCropPos: (setter: (pos: Vector) => Vector) => void
 }
 
 const CropperContext = createContext<CropperContextValue>({
