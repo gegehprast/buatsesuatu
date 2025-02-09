@@ -16,12 +16,18 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
     const [cropInitialized, setCropInitialized] = useState(false)
 
     const container = useRef<HTMLDivElement>(null)
-    const [img, imgPos, setImgPos] = useMouseMovable<HTMLImageElement>()
-    const [crop, cropPos, setCropPos] = useMouseMovable<HTMLDivElement>()
 
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
     const [imgSize, setImgSize] = useState({ width: 0, height: 0 })
     const [cropSize, setCropSize] = useState({ width: 0, height: 0 })
+    
+    const [img, imgPos, setImgPos] = useMouseMovable<HTMLImageElement>()
+    const [crop, cropPos, setCropPos] = useMouseMovable<HTMLDivElement>({
+        top: imgPos.y,
+        left: imgPos.x,
+        right: imgPos.x + imgSize.width,
+        bottom: imgPos.y + imgSize.height,
+    })
 
     useImperativeHandle(ref, () => {
         return {

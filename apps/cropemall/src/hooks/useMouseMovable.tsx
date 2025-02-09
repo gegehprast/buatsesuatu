@@ -1,13 +1,16 @@
 import { Vector } from '@cropemall/math'
 import React, { useEffect, useRef, useState } from 'react'
 
-type UseMovableWithMouse<T extends HTMLElement> = [
+const useMouseMovable = <T extends HTMLElement>(edges?: {
+    top?: number
+    right?: number
+    bottom?: number
+    left?: number
+}): [
     React.RefObject<T | null>,
     Vector,
     React.Dispatch<React.SetStateAction<Vector>>,
-]
-
-const useMouseMovable = <T extends HTMLElement>(): UseMovableWithMouse<T> => {
+] => {
     const elementRef = useRef<T>(null)
     const startPos = useRef(new Vector(0, 0))
     const currPos = useRef(new Vector(0, 0))
@@ -28,11 +31,35 @@ const useMouseMovable = <T extends HTMLElement>(): UseMovableWithMouse<T> => {
                 e.preventDefault()
                 e.stopPropagation()
 
+                const { width, height } = element?.getBoundingClientRect() || { width: 0, height: 0 }
                 currPos.current = new Vector(e.clientX, e.clientY)
 
                 const force = currPos.current.sub(startPos.current)
 
-                setPosition((pos) => pos.add(force))
+                setPosition((pos) => {
+                    let x = pos.x + force.x
+                    let y = pos.y + force.y
+
+                    if (edges) {
+                        if (edges.top !== undefined) {
+                            y = Math.max(edges.top, y)
+                        }
+
+                        if (edges.right !== undefined) {
+                            x = Math.min(edges.right - width, x)
+                        }
+
+                        if (edges.bottom !== undefined) {
+                            y = Math.min(edges.bottom - height, y)
+                        }
+
+                        if (edges.left !== undefined) {
+                            x = Math.max(edges.left, x)
+                        }
+                    }
+
+                    return new Vector(x, y)
+                })
 
                 startPos.current = currPos.current
             }
@@ -55,7 +82,7 @@ const useMouseMovable = <T extends HTMLElement>(): UseMovableWithMouse<T> => {
         return () => {
             element.removeEventListener('mousedown', handleMouseDown)
         }
-    }, [])
+    }, [edges])
 
     useEffect(() => {
         if (!elementRef.current) return
