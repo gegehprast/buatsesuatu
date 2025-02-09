@@ -93,13 +93,6 @@ const CropperMarker: React.FC = () => {
                 <CropperMarkerHandler type="bottom-left" />
                 <CropperMarkerHandler type="bottom-right" />
             </div>
-
-            <div
-                className={`absolute w-1 h-1 left-0 top-0 bg-green-500`}
-                style={{
-                    transform: `translate(${cropPos.x}px, ${cropPos.y}px)`,
-                }}
-            />
         </>
     )
 }
