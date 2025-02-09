@@ -1,6 +1,6 @@
 import background from '@/assets/background.png'
 import { useCropper } from '@/hooks/useCropper'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import CropperMarker from './CropperMarker'
 import { Vector } from '@cropemall/math'
 
@@ -19,6 +19,27 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
         imgPos,
         setImgPos,
     } = useCropper()
+    const [isControlPressed, setIsControlPressed] = useState(false)
+
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key !== 'Control') return
+            
+            setIsControlPressed(true)
+        }
+
+        const onKeyUp = () => {
+            setIsControlPressed(false)
+        }
+
+        document.body.addEventListener('keydown', onKeyDown)
+        document.body.addEventListener('keyup', onKeyUp)
+
+        return () => {
+            document.body.removeEventListener('keydown', onKeyDown)
+            document.body.removeEventListener('keyup', onKeyUp)
+        }
+    }, [])
 
     useEffect(() => {
         const containerEl = container.current
@@ -26,9 +47,11 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
         if (!containerEl) return
 
         const zoom = (e: WheelEvent) => {
+            if (!isControlPressed) return
+
             e.preventDefault()
 
-            const factor = 0.4
+            const factor = 0.2
             const aspectRatio = imgSize.width / imgSize.height
             const newWidth = imgSize.width + e.deltaY * factor
             const newHeight = newWidth / aspectRatio
@@ -46,6 +69,16 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
 
         containerEl.addEventListener('wheel', zoom, { passive: false })
 
+        return () => {
+            containerEl.removeEventListener('wheel', zoom)
+        }
+    }, [container, imgPos.x, imgPos.y, imgSize.height, imgSize.width, isControlPressed, setImgPos, setImgSize])
+
+    useEffect(() => {
+        const containerEl = container.current
+
+        if (!containerEl) return
+
         if (containerInitialized) return
 
         const { width, height } = containerEl.getBoundingClientRect()
@@ -53,11 +86,7 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
         setContainerSize({ width, height })
 
         setContainerInitialized(true)
-
-        return () => {
-            containerEl.removeEventListener('wheel', zoom)
-        }
-    }, [container, containerInitialized, imgPos.x, imgPos.y, imgSize.height, imgSize.width, setContainerInitialized, setContainerSize, setImgPos, setImgSize])
+    }, [container, containerInitialized, setContainerInitialized, setContainerSize])
 
     return (
         <div
