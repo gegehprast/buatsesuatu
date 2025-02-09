@@ -24,10 +24,10 @@ const CropperMarker: React.FC = () => {
         if (!containerInitialized || !imageInitialized || cropInitialized)
             return
 
-        let size = containerSize.width * 0.5
+        let size = imgSize.width * 0.8
 
-        if (imgSize.width < size) {
-            size = imgSize.width * 0.8
+        if (imgSize.height < size) {
+            size = imgSize.height * 0.8
         }
 
         setCropSize({ width: size, height: size })
@@ -46,6 +46,7 @@ const CropperMarker: React.FC = () => {
         containerSize.width,
         cropInitialized,
         imageInitialized,
+        imgSize.height,
         imgSize.width,
         setCropInitialized,
         setCropPos,

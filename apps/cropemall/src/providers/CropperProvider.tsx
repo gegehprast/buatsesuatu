@@ -61,7 +61,11 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
                 setImgPos(() => newImgPos)
 
                 // reset crop size and position
-                const size = newImgSize.width * 0.8
+                let size = newImgSize.width * 0.8
+
+                if (newImgSize.height < size) {
+                    size = newImgSize.height * 0.8
+                }
 
                 setCropSize({ width: size, height: size })
                 setCropPos(
