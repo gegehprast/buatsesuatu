@@ -30,6 +30,9 @@ interface CropperContextValue {
     cropPos: Vector
     setImgPos: UseMouseMovableSetPosition
     setCropPos: UseMouseMovableSetPosition
+
+    download: () => void
+    reset: () => void
 }
 
 const CropperContext = createContext<CropperContextValue>({
@@ -58,6 +61,9 @@ const CropperContext = createContext<CropperContextValue>({
     cropPos: new Vector(0, 0),
     setImgPos: () => {},
     setCropPos: () => {},
+
+    download: () => {},
+    reset: () => {},
 })
 
 export default CropperContext
