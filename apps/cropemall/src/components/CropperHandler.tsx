@@ -1,9 +1,9 @@
 import { useCropper } from '@/hooks/useCropper'
-import { Check, PencilOff } from 'lucide-react'
+import { Check, Image, PencilOff } from 'lucide-react'
 import React from 'react'
 
 const CropperHandler: React.FC = () => {
-    const { download, reset } = useCropper()
+    const { download, reset, getResult } = useCropper()
 
     return (
         <div className="z-10 absolute flex flex-col justify-center gap-2 top-1 left-1">
@@ -20,6 +20,13 @@ const CropperHandler: React.FC = () => {
                 className="bg-gray-600/30 rounded transition-colors duration-300 ease-in-out hover:bg-mf-500 cursor-pointer text-white p-1"
             >
                 <PencilOff width={20} height={20} />
+            </button>
+            <button
+                onClick={getResult}
+                title="Get result"
+                className="bg-gray-600/30 rounded transition-colors duration-300 ease-in-out hover:bg-mf-500 cursor-pointer text-white p-1"
+            >
+                <Image width={20} height={20} />
             </button>
         </div>
     )

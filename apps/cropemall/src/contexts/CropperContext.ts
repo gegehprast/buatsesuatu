@@ -31,8 +31,15 @@ export interface CropperContextValue {
     setImgPos: UseMouseMovableSetPosition
     setCropPos: UseMouseMovableSetPosition
 
+    imgRotation: number
+    setImgRotation: React.Dispatch<React.SetStateAction<number>>
+
+    result: string | undefined
+    setResult: React.Dispatch<React.SetStateAction<string | undefined>>
+
     download: () => void
     reset: () => void
+    getResult: () => Promise<string | undefined>
 }
 
 const CropperContext = createContext<CropperContextValue>({
@@ -62,8 +69,15 @@ const CropperContext = createContext<CropperContextValue>({
     setImgPos: () => {},
     setCropPos: () => {},
 
+    imgRotation: 0,
+    setImgRotation: () => {},
+
+    result: undefined,
+    setResult: () => {},
+
     download: () => {},
     reset: () => {},
+    getResult: async () => undefined,
 })
 
 export default CropperContext

@@ -18,6 +18,7 @@ const CropperMarker: React.FC = () => {
         setCropSize,
         cropPos,
         setCropPos,
+        imgRotation,
     } = useCropper()
 
     useEffect(() => {
@@ -80,7 +81,7 @@ const CropperMarker: React.FC = () => {
                         style={{
                             width: `${imgSize.width}px`,
                             height: `${imgSize.height}px`,
-                            transform: `translate(${relativePosition.x}px, ${relativePosition.y}px)`,
+                            transform: `translate(${relativePosition.x}px, ${relativePosition.y}px) rotate(${imgRotation}rad)`,
                         }}
                     />
                 </div>

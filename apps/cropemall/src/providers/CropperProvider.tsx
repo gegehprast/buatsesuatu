@@ -3,10 +3,12 @@ import React, { useImperativeHandle, useRef, useState } from 'react'
 import CropperContext from '../contexts/CropperContext'
 import useCropperDownload from '@/hooks/useCropperDownload'
 import useCropperReset from '@/hooks/useCropperReset'
+import useCropperResult from '@/hooks/useCropperResult'
 
 export type CropperMethods = {
     download: () => void
     reset: () => void
+    getResult: () => Promise<string | undefined>
 }
 
 interface CropperProviderProps {
@@ -27,7 +29,7 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
     const [imgSize, setImgSize] = useState({ width: 0, height: 0 })
     const [cropSize, setCropSize] = useState({ width: 0, height: 0 })
 
-    const [img, imgPos, setImgPos] = useMouseMovable<HTMLImageElement>()
+    const [img, imgPos, setImgPos] = useMouseMovable<HTMLImageElement>(undefined, true)
     const [crop, cropPos, setCropPos] = useMouseMovable<HTMLDivElement>({
         top: imgPos.y,
         left: imgPos.x,
@@ -35,9 +37,14 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
         bottom: imgPos.y + imgSize.height,
     })
 
+    const [imgRotation, setImgRotation] = useState(0)
+
+    const [result, setResult] = useState<string | undefined>(undefined)
+
     const download = useCropperDownload({
         img,
         imgSize,
+        imgRotation,
         cropSize,
         cropPos,
         imgPos,
@@ -49,14 +56,25 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
         setImgPos,
         setCropSize,
         setCropPos,
+        setImgRotation,
+    })
+    const getResult = useCropperResult({
+        img,
+        imgSize,
+        imgRotation,
+        cropSize,
+        cropPos,
+        imgPos,
+        setResult,
     })
 
     useImperativeHandle(ref, () => {
         return {
             download,
             reset,
+            getResult,
         }
-    }, [download, reset])
+    }, [download, reset, getResult])
 
     return (
         <CropperContext.Provider
@@ -75,20 +93,27 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
                 img,
                 crop,
 
+                containerSize,
                 imgSize,
-                setImgSize,
                 cropSize,
+                setContainerSize,
+                setImgSize,
                 setCropSize,
 
                 imgPos,
-                setImgPos,
                 cropPos,
+                setImgPos,
                 setCropPos,
-                containerSize,
-                setContainerSize,
+
+                imgRotation,
+                setImgRotation,
+
+                result, 
+                setResult,
 
                 download,
                 reset,
+                getResult
             }}
         >
             {children}

@@ -5,6 +5,8 @@ import React from 'react'
 import CropperContainer from './CropperContainer'
 import CropperImage from './CropperImage'
 import CropperHandler from './CropperHandler'
+import CropperRotateHandler from './CropperRotateHandler'
+import CropperResult from './CropperResult'
 
 interface CroppaProps {
     src: string
@@ -20,7 +22,11 @@ const Croppa: React.FC<CroppaProps> = ({ src, alt, ref }) => {
                     <CropperImage src={src} alt={alt} />
 
                     <CropperHandler />
+
+                    <CropperRotateHandler />
                 </CropperContainer>
+
+                <CropperResult />
             </CropperProvider>
         </div>
     )

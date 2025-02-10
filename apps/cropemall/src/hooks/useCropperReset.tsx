@@ -9,6 +9,7 @@ type UseCropperResetProps = Pick<
     | 'setImgPos'
     | 'setCropSize'
     | 'setCropPos'
+    | 'setImgRotation'
 >
 
 const useCropperReset = ({
@@ -18,6 +19,7 @@ const useCropperReset = ({
     setImgPos,
     setCropSize,
     setCropPos,
+    setImgRotation,
 }: UseCropperResetProps) => {
     const reset = () => {
         if (!container.current || !img.current) {
@@ -36,6 +38,7 @@ const useCropperReset = ({
         const newImgPos = new Vector((cWidth - newImgSize.width) / 2, 0)
         setImgSize(newImgSize)
         setImgPos(() => newImgPos)
+        setImgRotation(0)
 
         // reset crop size and position
         let size = newImgSize.width * 0.8

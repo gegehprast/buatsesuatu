@@ -17,7 +17,9 @@ const CropperImage: React.FC<CropperImageProps> = ({ src, ...props }) => {
         img,
         imgSize,
         setImgSize,
+        imgPos,
         setImgPos,
+        imgRotation,
     } = useCropper()
 
     useEffect(() => {
@@ -61,6 +63,7 @@ const CropperImage: React.FC<CropperImageProps> = ({ src, ...props }) => {
                 style={{
                     width: `${imgSize.width}px`,
                     height: `${imgSize.height}px`,
+                    transform: `translate(${imgPos.x}px, ${imgPos.y}px) rotate(${imgRotation}rad)`,
                 }}
                 className={`absolute block select-none ${props.className || ''} max-w-none! max-h-none!`}
                 {...props}
@@ -71,6 +74,38 @@ const CropperImage: React.FC<CropperImageProps> = ({ src, ...props }) => {
                     <p className="text-white">Loading...</p>
                 </div>
             )}
+
+            {/* x,y dot debug */}
+            <div
+                className="absolute bg-red-500 w-1 h-1"
+                style={{
+                    transform: `translate(${imgPos.x}px, ${imgPos.y}px)`,
+                }}
+            ></div>
+            
+            {/* x,y dot debug */}
+            <div
+                className="absolute bg-blue-500 w-1 h-1"
+                style={{
+                    transform: `translate(${imgPos.x + imgSize.width}px, ${imgPos.y}px)`,
+                }}
+            ></div>
+
+            {/* x,y dot debug */}
+            <div
+                className="absolute bg-green-500 w-1 h-1"
+                style={{
+                    transform: `translate(${imgPos.x}px, ${imgPos.y + imgSize.height}px)`,
+                }}
+            ></div>
+
+            {/* x,y dot debug */}
+            <div
+                className="absolute bg-yellow-500 w-1 h-1"
+                style={{
+                    transform: `translate(${imgPos.x + imgSize.width}px, ${imgPos.y + imgSize.height}px)`,
+                }}
+            ></div>
         </>
     )
 }

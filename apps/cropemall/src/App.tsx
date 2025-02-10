@@ -1,20 +1,22 @@
 import Dropable from './components/Dropable'
 import Canvas from './components/Canvas'
 import useFileStore from './hooks/useFileStore'
-import { CroppaMethods } from './components/Croppa'
 import { useRef, createRef } from 'react'
+import { CropperMethods } from './providers/CropperProvider'
 
 function App() {
     const files = useFileStore((s) => s.files)
     const setFiles = useFileStore((s) => s.setFiles)
-    const croppaRefs = useRef<React.RefObject<CroppaMethods | null>[]>([])
+    const croppaRefs = useRef<React.RefObject<CropperMethods | null>[]>(
+        [],
+    )
     croppaRefs.current = files.map(() => createRef())
 
     const crop = () => {
         croppaRefs.current.forEach((ref) => {
             if (!ref.current) return
 
-            ref.current.crop()
+            ref.current.download()
         })
     }
 
