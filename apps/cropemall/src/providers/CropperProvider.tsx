@@ -1,13 +1,8 @@
 import useMouseMovable from '@/hooks/useMouseMovable'
-import React, {
-    useCallback,
-    useImperativeHandle,
-    useRef,
-    useState,
-} from 'react'
+import React, { useImperativeHandle, useRef, useState } from 'react'
 import CropperContext from '../contexts/CropperContext'
-import { download } from '@/libs/download'
-import { Vector } from '@cropemall/math'
+import useCropperDownload from '@/hooks/useCropperDownload'
+import useCropperReset from '@/hooks/useCropperReset'
 
 export type CropperMethods = {
     download: () => void
@@ -40,50 +35,28 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
         bottom: imgPos.y + imgSize.height,
     })
 
-    const _download = useCallback(() => {
-        if (!img.current) return
-
-        download(img.current, imgSize, cropSize, cropPos, imgPos)
-    }, [cropPos, cropSize, img, imgPos, imgSize])
-
-    const reset = useCallback(() => {
-        if (!container.current || !img.current) {
-            return
-        }
-
-        const containerEl = container.current
-        const imgEl = img.current
-
-        const { width: cWidth, height: cHeight } =
-            containerEl.getBoundingClientRect()
-
-        // reset image size and position
-        const ratio = imgEl.naturalWidth / imgEl.naturalHeight
-        const newImgSize = { width: cHeight * ratio, height: cHeight }
-        const newImgPos = new Vector((cWidth - newImgSize.width) / 2, 0)
-        setImgSize(newImgSize)
-        setImgPos(() => newImgPos)
-
-        // reset crop size and position
-        let size = newImgSize.width * 0.8
-
-        if (newImgSize.height < size) {
-            size = newImgSize.height * 0.8
-        }
-
-        setCropSize({ width: size, height: size })
-        setCropPos(
-            () => new Vector((cWidth - size) / 2, (cHeight - size) / 2),
-            {},
-        )
-    }, [img, setCropPos, setImgPos])
+    const download = useCropperDownload({
+        img,
+        imgSize,
+        cropSize,
+        cropPos,
+        imgPos,
+    })
+    const reset = useCropperReset({
+        container,
+        img,
+        setImgSize,
+        setImgPos,
+        setCropSize,
+        setCropPos,
+    })
 
     useImperativeHandle(ref, () => {
         return {
-            download: _download,
+            download,
             reset,
         }
-    }, [_download, reset])
+    }, [download, reset])
 
     return (
         <CropperContext.Provider
@@ -114,7 +87,7 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
                 containerSize,
                 setContainerSize,
 
-                download: _download,
+                download,
                 reset,
             }}
         >

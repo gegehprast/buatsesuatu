@@ -4,7 +4,7 @@ import React, { createContext } from 'react'
 
 export type Size = { width: number; height: number }
 
-interface CropperContextValue {
+export interface CropperContextValue {
     imageLoaded: boolean
     setImageLoaded: (loaded: boolean) => void
 
