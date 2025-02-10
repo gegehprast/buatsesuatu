@@ -1,9 +1,10 @@
 import useFileStore from '@/hooks/useFileStore'
-import Croppa, { CroppaMethods } from './Croppa'
+import Croppa from './Croppa'
 import React, { useEffect, useState } from 'react'
+import { CropperMethods } from '@/providers/CropperProvider'
 
 interface CanvasProps {
-    croppaRefs: React.RefObject<React.RefObject<CroppaMethods | null>[]>
+    croppaRefs: React.RefObject<React.RefObject<CropperMethods | null>[]>
 }
 
 const Canvas: React.FC<CanvasProps> = ({ croppaRefs }) => {
