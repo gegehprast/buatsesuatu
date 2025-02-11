@@ -8,11 +8,16 @@ const CropperRotateHandler: React.FC = () => {
         useCropperRotateHandler()
 
     return (
-        <div className="absolute bottom-0 left-0 space-x-2 p-2 w-full flex items-center text-white z-10">
+        <div className="absolute bottom-0 left-0 space-x-2 w-full p-2 flex items-center text-white z-10">
             <div
                 ref={containerRef}
-                className="relative w-[200px] mx-auto h-4 flex items-center overflow-hidden"
+                className="relative w-[200px] mx-auto h-6 flex items-center"
             >
+                {/* rotation lebel */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 text-sm">
+                    {(imgRotation / (Math.PI / 180)).toFixed(1)}°
+                </div>
+                
                 {barRefs.map((barRef, i) => {
                     return (
                         <Bar
@@ -25,11 +30,6 @@ const CropperRotateHandler: React.FC = () => {
 
                 {/* center bar */}
                 <div className="absolute w-0.5 h-4 bg-mf-400 left-1/2 -translate-x-1/2" />
-            </div>
-
-            {/* rotation lebel */}
-            <div className="absolute top-0 left-0 text-center">
-                {imgRotation / (Math.PI / 180)}° | {imgRotation}rad
             </div>
         </div>
     )

@@ -16,11 +16,11 @@ const maxAngle = 180
 const maxAngleRadian = maxAngle * (Math.PI / 180)
 
 const offsetForceToRadians = (force: Vector) => {
-    return force.x * (Math.PI / 180)
+    return -(force.x * (Math.PI / 180))
 }
 
 const radiansToOffsetForce = (radian: number) => {
-    return new Vector(radian / (Math.PI / 180), 0)
+    return new Vector(-(radian / (Math.PI / 180)), 0)
 }
 
 const useCropperRotateHandler = () => {
