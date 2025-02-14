@@ -92,7 +92,7 @@ const useCropperRotateHandler = () => {
             container.removeEventListener('mousedown', handleMouseDown)
         }
     }, [barRefs, setImgRotation])
-    
+
     useEffect(() => {
         barRefs.forEach((barRef, i) => {
             const bar = barRef.current
