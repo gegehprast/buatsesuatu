@@ -17,7 +17,7 @@ const Dropable = () => {
         setDragging(false)
 
         const files = e.dataTransfer.files
-        
+
         setFiles(Array.from(files))
     }
 
@@ -28,7 +28,7 @@ const Dropable = () => {
         input.multiple = true
         input.onchange = (e) => {
             const files = (e.target as HTMLInputElement).files
-            
+
             if (files) {
                 setFiles(Array.from(files))
             }

@@ -55,7 +55,17 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
             imgEl.removeEventListener('wheel', zoom)
             cropEl.removeEventListener('wheel', zoom)
         }
-    }, [container, crop, img, imgPos.x, imgPos.y, imgSize.height, imgSize.width, setImgPos, setImgSize])
+    }, [
+        container,
+        crop,
+        img,
+        imgPos.x,
+        imgPos.y,
+        imgSize.height,
+        imgSize.width,
+        setImgPos,
+        setImgSize,
+    ])
 
     useEffect(() => {
         const containerEl = container.current
@@ -69,7 +79,12 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
         setContainerSize({ width, height })
 
         setContainerInitialized(true)
-    }, [container, containerInitialized, setContainerInitialized, setContainerSize])
+    }, [
+        container,
+        containerInitialized,
+        setContainerInitialized,
+        setContainerSize,
+    ])
 
     return (
         <div

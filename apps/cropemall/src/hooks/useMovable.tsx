@@ -1,9 +1,7 @@
 import { Vector } from '@cropemall/math'
 import { useEffect, useRef, useState } from 'react'
 
-type UseMovable<T extends HTMLElement> = [
-    React.MutableRefObject<T | null>
-]
+type UseMovable<T extends HTMLElement> = [React.MutableRefObject<T | null>]
 
 const useMovable = <T extends HTMLElement>(): UseMovable<T> => {
     const elementRef = useRef<T>(null)
@@ -52,10 +50,7 @@ const useMovable = <T extends HTMLElement>(): UseMovable<T> => {
         element.addEventListener('dragend', handleDragEnd)
 
         return () => {
-            element.removeEventListener(
-                'dragstart',
-                handleDragStart,
-            )
+            element.removeEventListener('dragstart', handleDragStart)
             element.removeEventListener('drag', handleDrag)
             element.removeEventListener('dragend', handleDragEnd)
         }

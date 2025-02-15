@@ -82,7 +82,7 @@ const CropperImage: React.FC<CropperImageProps> = ({ src, ...props }) => {
                     transform: `translate(${imgPos.x}px, ${imgPos.y}px)`,
                 }}
             ></div>
-            
+
             {/* x,y dot debug */}
             <div
                 className="absolute bg-blue-500 w-1 h-1"

@@ -45,11 +45,7 @@ const constraint = <T extends HTMLElement>(
 const useMouseMovable = <T extends HTMLElement>(
     edges?: Edges,
     immutable?: boolean,
-): [
-    React.RefObject<T | null>,
-    Vector,
-    UseMouseMovableSetPosition,
-] => {
+): [React.RefObject<T | null>, Vector, UseMouseMovableSetPosition] => {
     const elementRef = useRef<T>(null)
     const startPos = useRef(new Vector(0, 0))
     const currPos = useRef(new Vector(0, 0))
@@ -109,7 +105,7 @@ const useMouseMovable = <T extends HTMLElement>(
         if (!elementRef.current) return
 
         elementRef.current.style.cursor = 'move'
-        
+
         if (immutable) return
 
         elementRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`

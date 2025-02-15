@@ -1,4 +1,4 @@
-import { UseMouseMovableSetPosition } from '@/hooks/useMouseMovable';
+import { UseMouseMovableSetPosition } from '@/hooks/useMouseMovable'
 import { Vector } from '@cropemall/math'
 import React, { createContext } from 'react'
 

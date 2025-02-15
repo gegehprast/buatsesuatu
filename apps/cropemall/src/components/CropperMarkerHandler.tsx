@@ -22,8 +22,14 @@ const styleMap = new Map([
     ['bottom-left', '-bottom-[4px] -left-[4px] cursor-sw-resize'],
     ['left', 'top-1/2 -left-[4px] transform -translate-y-1/2 cursor-w-resize'],
     ['top', '-top-[4px] left-1/2 transform -translate-x-1/2 cursor-n-resize'],
-    ['right', 'top-1/2 -right-[4px] transform -translate-y-1/2 cursor-e-resize'],
-    ['bottom', '-bottom-[4px] left-1/2 transform -translate-x-1/2 cursor-s-resize'],
+    [
+        'right',
+        'top-1/2 -right-[4px] transform -translate-y-1/2 cursor-e-resize',
+    ],
+    [
+        'bottom',
+        '-bottom-[4px] left-1/2 transform -translate-x-1/2 cursor-s-resize',
+    ],
 ])
 
 type Resizer = (

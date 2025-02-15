@@ -29,7 +29,10 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
     const [imgSize, setImgSize] = useState({ width: 0, height: 0 })
     const [cropSize, setCropSize] = useState({ width: 0, height: 0 })
 
-    const [img, imgPos, setImgPos] = useMouseMovable<HTMLImageElement>(undefined, true)
+    const [img, imgPos, setImgPos] = useMouseMovable<HTMLImageElement>(
+        undefined,
+        true,
+    )
     const [crop, cropPos, setCropPos] = useMouseMovable<HTMLDivElement>({
         top: imgPos.y,
         left: imgPos.x,
@@ -108,12 +111,12 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
                 imgRotation,
                 setImgRotation,
 
-                result, 
+                result,
                 setResult,
 
                 download,
                 reset,
-                getResult
+                getResult,
             }}
         >
             {children}

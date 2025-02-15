@@ -24,7 +24,14 @@ const useCropperResult = ({
     const _getResult = async () => {
         if (!img.current) return
 
-        const result = await getResult(img.current, imgSize, imgRotation, cropSize, cropPos, imgPos)
+        const result = await getResult(
+            img.current,
+            imgSize,
+            imgRotation,
+            cropSize,
+            cropPos,
+            imgPos,
+        )
 
         if (!result) return
 

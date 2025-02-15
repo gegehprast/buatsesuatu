@@ -7,9 +7,7 @@ import { CropperMethods } from './providers/CropperProvider'
 function App() {
     const files = useFileStore((s) => s.files)
     const setFiles = useFileStore((s) => s.setFiles)
-    const croppaRefs = useRef<React.RefObject<CropperMethods | null>[]>(
-        [],
-    )
+    const croppaRefs = useRef<React.RefObject<CropperMethods | null>[]>([])
     croppaRefs.current = files.map(() => createRef())
 
     const crop = () => {

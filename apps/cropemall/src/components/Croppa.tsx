@@ -1,6 +1,4 @@
-import CropperProvider, {
-    CropperMethods,
-} from '@/providers/CropperProvider'
+import CropperProvider, { CropperMethods } from '@/providers/CropperProvider'
 import React from 'react'
 import CropperContainer from './CropperContainer'
 import CropperImage from './CropperImage'
