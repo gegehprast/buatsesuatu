@@ -14,10 +14,10 @@ const useCropperDownload = ({
     cropPos,
     imgPos,
 }: UseCropperDownloadProps) => {
-    const _download = () => {
+    const _download = async () => {
         if (!img.current) return
 
-        download(img.current, imgSize, imgRotation, cropSize, cropPos, imgPos)
+        await download(img.current, imgSize, imgRotation, cropSize, cropPos, imgPos)
     }
 
     return _download
