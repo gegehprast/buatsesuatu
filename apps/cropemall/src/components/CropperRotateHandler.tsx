@@ -44,7 +44,7 @@ const Bar: React.FC<BarProps> = ({ ref }) => {
     return (
         <div
             ref={ref}
-            className={`absolute w-0.5 h-3 bg-gray-100 transition-[height] duration-200 ease-in`}
+            className={`absolute h-3 bg-gray-100 transition-[height] duration-200 ease-in`}
         />
     )
 }

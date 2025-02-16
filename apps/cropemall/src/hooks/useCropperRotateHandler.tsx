@@ -4,20 +4,23 @@ import { useCropper } from './useCropper'
 
 const keep = 6
 const containerWidth = 400
-const barStep = 15
-const barCount = 101
+const barWith = 2
+const containerCenter = containerWidth / 2
+const barCenterOffset = barWith / 2
+const maxBarStep = 15
+const barCount = 81
 const centerIndex = Math.floor(barCount / 2)
-const atMinus180 = centerIndex - 180 / 0.5 / barStep
-const atMinus90 = centerIndex - 90 / 0.5 / barStep
-const atMinus45 = centerIndex - 45 / 0.5 / barStep
-const at45 = centerIndex + 45 / 0.5 / barStep
-const at90 = centerIndex + 90 / 0.5 / barStep
-const at180 = centerIndex + 180 / 0.5 / barStep
+const atMinus180 = centerIndex - 180 / 0.5 / maxBarStep
+const atMinus90 = centerIndex - 90 / 0.5 / maxBarStep
+const atMinus45 = centerIndex - 45 / 0.5 / maxBarStep
+const at45 = centerIndex + 45 / 0.5 / maxBarStep
+const at90 = centerIndex + 90 / 0.5 / maxBarStep
+const at180 = centerIndex + 180 / 0.5 / maxBarStep
 const bars = Array.from({ length: barCount }, (_, i) => {
-    const centerX = containerWidth / 2
-    const width = 1
-    const offset = (i - centerIndex) * barStep
-    const pos = new Vector(centerX + offset - width, 0)
+    const centerOffset = centerIndex * maxBarStep
+    const totalOffset = centerOffset - containerCenter + barCenterOffset
+    const positionX = i * maxBarStep - totalOffset
+    const pos = new Vector(positionX, 0)
 
     return pos
 })
@@ -103,9 +106,11 @@ const useCropperRotateHandler = () => {
             const offsetForce = radiansToOffsetForce(imgRotation)
             const newPos = pos.add(offsetForce)
 
-            bar.style.transform = `translateX(${newPos.x}px)`
+            const currentCenter = Math.round(
+                centerIndex - offsetForce.x / maxBarStep,
+            )
 
-            const currentCenter = Math.round(centerIndex - offsetForce.x / barStep)
+            bar.style.transform = `translateX(${newPos.x}px)`
 
             // opacity style
             if (i > currentCenter - keep && i < currentCenter + keep) {
@@ -115,12 +120,14 @@ const useCropperRotateHandler = () => {
             // receding opacity style for left side
             if (i < currentCenter - keep) {
                 const op = Math.abs(i - (currentCenter - keep)) / 10
+
                 bar.style.opacity = `${1 - op}`
             }
 
             // receding opacity style for right side
             if (i > currentCenter + keep) {
                 const op = Math.abs(i - (currentCenter + keep)) / 10
+
                 bar.style.opacity = `${1 - op}`
             }
 
@@ -146,6 +153,9 @@ const useCropperRotateHandler = () => {
                 bar.style.backgroundColor = '#ffc9e8'
                 bar.style.height = '16px'
             }
+
+            // width style
+            bar.style.width = `${barWith}px`
         })
     }, [barRefs, imgRotation])
 
