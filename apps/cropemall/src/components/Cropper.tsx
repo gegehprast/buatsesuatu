@@ -1,5 +1,5 @@
 import React from 'react'
-import { Vector } from '@cropemall/math'
+import { Vector } from '@buatsesuatu/math'
 
 interface CropperProps {
     movableRef: React.RefObject<HTMLDivElement | null>

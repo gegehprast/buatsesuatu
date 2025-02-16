@@ -1,5 +1,5 @@
 import { useCropper } from '@/hooks/useCropper'
-import { Vector } from '@cropemall/math'
+import { Vector } from '@buatsesuatu/math'
 import React, { useEffect } from 'react'
 
 interface CropperImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {

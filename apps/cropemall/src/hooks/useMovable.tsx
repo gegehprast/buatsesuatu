@@ -1,4 +1,4 @@
-import { Vector } from '@cropemall/math'
+import { Vector } from '@buatsesuatu/math'
 import React, { useEffect, useRef, useState } from 'react'
 
 export type Edges = {

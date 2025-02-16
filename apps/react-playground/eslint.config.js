@@ -1,4 +1,4 @@
-import { config } from '@cropemall/eslint-config/react-internal'
+import { config } from '@buatsesuatu/eslint-config/react-internal'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 

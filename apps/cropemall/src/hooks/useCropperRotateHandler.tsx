@@ -1,4 +1,4 @@
-import { Vector } from '@cropemall/math'
+import { Vector } from '@buatsesuatu/math'
 import { createRef, useEffect, useRef } from 'react'
 import { useCropper } from './useCropper'
 

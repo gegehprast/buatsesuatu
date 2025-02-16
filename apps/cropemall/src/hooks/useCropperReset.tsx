@@ -1,5 +1,5 @@
 import { CropperContextValue } from '@/contexts/CropperContext'
-import { Vector } from '@cropemall/math'
+import { Vector } from '@buatsesuatu/math'
 
 type UseCropperResetProps = Pick<
     CropperContextValue,

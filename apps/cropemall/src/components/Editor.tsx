@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import background from '@/assets/background.png'
 import useMovable from '@/hooks/useMovable'
 import Cropper from './Cropper'
-import { Vector } from '@cropemall/math'
+import { Vector } from '@buatsesuatu/math'
 
 const crop = (
     image: HTMLImageElement,

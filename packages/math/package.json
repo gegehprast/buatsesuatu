@@ -1,5 +1,5 @@
 {
-  "name": "@cropemall/math",
+  "name": "@buatsesuatu/math",
   "type": "module",
   "scripts": {
     "dev": "tsc --watch",
@@ -12,7 +12,7 @@
     }
   },
   "devDependencies": {
-    "@cropemall/typescript-config": "workspace:*",
+    "@buatsesuatu/typescript-config": "workspace:*",
     "typescript": "latest"
   }
 }

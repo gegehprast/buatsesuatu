@@ -1,4 +1,4 @@
-import { Vector } from '@cropemall/math'
+import { Vector } from '@buatsesuatu/math'
 
 export const getResult = (
     image: HTMLImageElement,

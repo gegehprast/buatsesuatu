@@ -1,5 +1,5 @@
 import { UseMovableSetPosition } from '@/hooks/useMovable'
-import { Vector } from '@cropemall/math'
+import { Vector } from '@buatsesuatu/math'
 import React, { createContext } from 'react'
 
 export type Size = { width: number; height: number }

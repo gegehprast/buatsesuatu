@@ -2,7 +2,7 @@ import background from '@/assets/background.png'
 import { useCropper } from '@/hooks/useCropper'
 import React, { useEffect } from 'react'
 import CropperMarker from './CropperMarker'
-import { Vector } from '@cropemall/math'
+import { Vector } from '@buatsesuatu/math'
 
 interface CropperContainerProps {
     children: React.ReactNode

@@ -1,5 +1,5 @@
 {
-    "extends": "@cropemall/typescript-config/base.json",
+    "extends": "@buatsesuatu/typescript-config/base.json",
     "compilerOptions": {
         "outDir": "dist",
         "rootDir": "src"

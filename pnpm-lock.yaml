@@ -20,10 +20,10 @@ importers:
 
   apps/cropemall:
     dependencies:
-      '@cropemall/math':
+      '@buatsesuatu/math':
         specifier: workspace:*
         version: link:../../packages/math
-      '@cropemall/ui':
+      '@buatsesuatu/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@tailwindcss/vite':
@@ -209,7 +209,7 @@ importers:
 
   packages/math:
     devDependencies:
-      '@cropemall/typescript-config':
+      '@buatsesuatu/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       typescript:
@@ -227,10 +227,10 @@ importers:
         specifier: ^19.0.0
         version: 19.0.0(react@19.0.0)
     devDependencies:
-      '@cropemall/eslint-config':
+      '@buatsesuatu/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@cropemall/typescript-config':
+      '@buatsesuatu/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@turbo/gen':

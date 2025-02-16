@@ -1,5 +1,5 @@
 import { useCropper } from '@/hooks/useCropper'
-import { Vector } from '@cropemall/math'
+import { Vector } from '@buatsesuatu/math'
 import { useEffect } from 'react'
 import CropperMarkerHandler from './CropperMarkerHandler'
 
