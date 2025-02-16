@@ -15,7 +15,7 @@ const CropperRotateHandler: React.FC = () => {
     const [containerRef, barRefs] = useCropperRotateHandler()
 
     return (
-        <div className="absolute bottom-0 left-0 space-x-2 w-full p-2 flex items-center text-white z-10">
+        <div className="absolute bottom-0 left-0 space-x-2 w-full p-2 flex items-center text-white">
             <div
                 ref={containerRef}
                 className="relative w-[400px] mx-auto h-6 flex items-center"
