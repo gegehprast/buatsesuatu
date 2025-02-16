@@ -3,6 +3,7 @@ import Canvas from './components/Canvas'
 import useFileStore from './hooks/useFileStore'
 import { useRef, createRef } from 'react'
 import { CropperMethods } from './providers/CropperProvider'
+import Footer from './components/Footer'
 
 function App() {
     const files = useFileStore((s) => s.files)
@@ -63,6 +64,8 @@ function App() {
                     </button>
                 </div>
             )}
+
+            {files.length === 0 && <Footer />}
         </div>
     )
 }
