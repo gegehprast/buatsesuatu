@@ -1,69 +1,127 @@
 import { Vector } from '@cropemall/math'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
-type UseMovable<T extends HTMLElement> = [React.MutableRefObject<T | null>]
+export type Edges = {
+    top?: number
+    right?: number
+    bottom?: number
+    left?: number
+}
 
-const useMovable = <T extends HTMLElement>(): UseMovable<T> => {
+export type UseMovableSetPosition = (
+    setter: (pos: Vector) => Vector,
+    edges?: Edges,
+) => void
+
+const constraint = <T extends HTMLElement>(
+    element: T,
+    pos: Vector,
+    edges?: Edges,
+) => {
+    const newPos = pos.copy()
+    const { width, height } = element.getBoundingClientRect()
+
+    if (edges) {
+        if (edges.top !== undefined) {
+            newPos.y = Math.max(edges.top, newPos.y)
+        }
+
+        if (edges.right !== undefined) {
+            newPos.x = Math.min(edges.right - width, newPos.x)
+        }
+
+        if (edges.bottom !== undefined) {
+            newPos.y = Math.min(edges.bottom - height, newPos.y)
+        }
+
+        if (edges.left !== undefined) {
+            newPos.x = Math.max(edges.left, newPos.x)
+        }
+    }
+
+    return newPos
+}
+
+const useMovable = <T extends HTMLElement>(
+    edges?: Edges,
+    immutable?: boolean,
+): [React.RefObject<T | null>, Vector, UseMovableSetPosition] => {
     const elementRef = useRef<T>(null)
-    const dragStartPosRef = useRef(new Vector(0, 0))
-    const dragEndPosRef = useRef(new Vector(0, 0))
-
+    const startPos = useRef(new Vector(0, 0))
+    const currPos = useRef(new Vector(0, 0))
     const [position, setPosition] = useState(new Vector(0, 0))
 
     useEffect(() => {
         const element = elementRef.current
 
-        if (!element) {
-            return
-        }
+        if (!element) return
 
-        function handleDragStart(e: DragEvent) {
-            dragStartPosRef.current = new Vector(e.clientX, e.clientY)
-        }
-
-        function handleDrag(e: DragEvent) {
+        function handleMouseDown(e: MouseEvent) {
             e.preventDefault()
             e.stopPropagation()
 
-            dragEndPosRef.current = new Vector(e.clientX, e.clientY)
+            startPos.current = new Vector(e.clientX, e.clientY)
 
-            const force = dragEndPosRef.current.sub(dragStartPosRef.current)
+            function handleMouseMove(e: MouseEvent) {
+                e.preventDefault()
+                e.stopPropagation()
 
-            setPosition((pos) => pos.add(force))
+                currPos.current = new Vector(e.clientX, e.clientY)
 
-            dragStartPosRef.current = dragEndPosRef.current
+                const force = currPos.current.sub(startPos.current)
+
+                setPosition((pos) => {
+                    const newPos = pos.add(force)
+
+                    if (!element) return newPos
+
+                    return constraint(element, newPos, edges)
+                })
+
+                startPos.current = currPos.current
+            }
+
+            function handleMouseUp(e: MouseEvent) {
+                e.preventDefault()
+                e.stopPropagation()
+
+                document.body.removeEventListener('mousemove', handleMouseMove)
+            }
+
+            document.body.addEventListener('mousemove', handleMouseMove)
+            document.body.addEventListener('mouseup', handleMouseUp, {
+                once: true,
+            })
         }
 
-        function handleDragEnd(e: DragEvent) {
-            e.preventDefault()
-            e.stopPropagation()
-
-            dragEndPosRef.current = new Vector(e.clientX, e.clientY)
-
-            const force = dragEndPosRef.current.sub(dragStartPosRef.current)
-
-            setPosition((pos) => pos.add(force))
-        }
-
-        element.addEventListener('dragstart', handleDragStart)
-        element.addEventListener('drag', handleDrag)
-        element.addEventListener('dragend', handleDragEnd)
+        element.addEventListener('mousedown', handleMouseDown)
 
         return () => {
-            element.removeEventListener('dragstart', handleDragStart)
-            element.removeEventListener('drag', handleDrag)
-            element.removeEventListener('dragend', handleDragEnd)
+            element.removeEventListener('mousedown', handleMouseDown)
         }
-    }, [])
+    }, [edges])
 
     useEffect(() => {
-        if (elementRef.current) {
-            elementRef.current.setAttribute('draggable', 'true')
-            elementRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`
-        }
-    }, [position])
+        if (!elementRef.current) return
 
-    return [elementRef]
+        elementRef.current.style.cursor = 'move'
+
+        if (immutable) return
+
+        elementRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`
+    }, [position, immutable])
+
+    const _setPosition: UseMovableSetPosition = (setter, _edges) => {
+        setPosition((pos) => {
+            const newPos = setter(pos)
+
+            if (!elementRef.current) return newPos
+
+            return constraint(elementRef.current, newPos, _edges || edges)
+        })
+    }
+
+    return [elementRef, position, _setPosition]
 }
 
 export default useMovable

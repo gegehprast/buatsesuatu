@@ -1,4 +1,4 @@
-import useMouseMovable from '@/hooks/useMouseMovable'
+import useMovable from '@/hooks/useMovable'
 import React, { useImperativeHandle, useRef, useState } from 'react'
 import CropperContext from '../contexts/CropperContext'
 import useCropperDownload from '@/hooks/useCropperDownload'
@@ -29,11 +29,11 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
     const [imgSize, setImgSize] = useState({ width: 0, height: 0 })
     const [cropSize, setCropSize] = useState({ width: 0, height: 0 })
 
-    const [img, imgPos, setImgPos] = useMouseMovable<HTMLImageElement>(
+    const [img, imgPos, setImgPos] = useMovable<HTMLImageElement>(
         undefined,
         true,
     )
-    const [crop, cropPos, setCropPos] = useMouseMovable<HTMLDivElement>({
+    const [crop, cropPos, setCropPos] = useMovable<HTMLDivElement>({
         top: imgPos.y,
         left: imgPos.x,
         right: imgPos.x + imgSize.width,

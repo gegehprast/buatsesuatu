@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import background from '@/assets/background.png'
-import useMouseMovable from '@/hooks/useMouseMovable'
+import useMovable from '@/hooks/useMovable'
 import Cropper from './Cropper'
 import { Vector } from '@cropemall/math'
 
@@ -54,9 +54,9 @@ interface CropperProps {
 }
 
 const Editor: React.FC<CropperProps> = ({ img, alt }) => {
-    const [image, imgPos, setImgPos] = useMouseMovable<HTMLImageElement>()
+    const [image, imgPos, setImgPos] = useMovable<HTMLImageElement>()
     const [cropper, cropperPos, setCropperPos] =
-        useMouseMovable<HTMLDivElement>()
+        useMovable<HTMLDivElement>()
     const container = useRef<HTMLDivElement>(null)
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
     const [imgSize, setImgSize] = useState({ width: 0, height: 0 })
