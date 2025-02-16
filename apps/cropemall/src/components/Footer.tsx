@@ -8,6 +8,9 @@ const Footer = () => {
                     All your files never leave your browser.
                 </label>{' '}
                 <label>
+                    Mobile currently not supported.
+                </label>{' '}
+                <label>
                     Source code available on{' '}
                     <a
                         href="https://github.com/gegehprast/buatsesuatu/tree/main/apps/cropemall"
