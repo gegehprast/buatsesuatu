@@ -3,6 +3,7 @@ import { useCropper } from '@/hooks/useCropper'
 import React, { useEffect } from 'react'
 import CropperMarker from './CropperMarker'
 import { Vector } from '@buatsesuatu/math'
+import CropperRotateHandler from './CropperRotateHandler'
 
 interface CropperContainerProps {
     children: React.ReactNode
@@ -98,6 +99,8 @@ const CropperContainer: React.FC<CropperContainerProps> = ({ children }) => {
             <CropperBackdrop />
 
             <CropperMarker />
+
+            <CropperRotateHandler />
         </div>
     )
 }
