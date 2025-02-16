@@ -11,12 +11,14 @@ function App() {
     const croppaRefs = useRef<React.RefObject<CropperMethods | null>[]>([])
     croppaRefs.current = files.map(() => createRef())
 
-    const crop = () => {
-        croppaRefs.current.forEach((ref) => {
-            if (!ref.current) return
+    const crop = async () => {
+        for (let i = 0; i < files.length; i++) {
+            const ref = croppaRefs.current[i]
 
-            ref.current.download()
-        })
+            if (!ref.current) continue
+
+            await ref.current.download()
+        }
     }
 
     const reset = () => {

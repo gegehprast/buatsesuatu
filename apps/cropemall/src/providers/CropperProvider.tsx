@@ -6,7 +6,7 @@ import useCropperReset from '@/hooks/useCropperReset'
 import useCropperResult from '@/hooks/useCropperResult'
 
 export type CropperMethods = {
-    download: () => void
+    download: () => Promise<void>
     reset: () => void
     getResult: () => Promise<string | undefined>
 }
