@@ -36,15 +36,15 @@ const CropperRotateHandler: React.FC = () => {
     )
 }
 
-interface BarProps extends React.HTMLAttributes<HTMLDivElement> {
+interface BarProps {
     ref: React.RefObject<HTMLDivElement | null>
 }
 
-const Bar: React.FC<BarProps> = ({ ref, ...props }) => {
+const Bar: React.FC<BarProps> = ({ ref }) => {
     return (
         <div
             ref={ref}
-            className={`absolute w-0.5 h-3 bg-gray-100 transition-[height] duration-200 ease-in ${props.className}`}
+            className={`absolute w-0.5 h-3 bg-gray-100 transition-[height] duration-200 ease-in`}
         />
     )
 }

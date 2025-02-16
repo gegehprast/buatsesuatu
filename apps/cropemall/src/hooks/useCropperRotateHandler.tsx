@@ -6,17 +6,17 @@ const keep = 6
 const containerWidth = 400
 const barStep = 15
 const barCount = 101
-const center = Math.floor(barCount / 2)
-const atMinus180 = center - 180 / 0.5 / barStep
-const atMinus90 = center - 90 / 0.5 / barStep
-const atMinus45 = center - 45 / 0.5 / barStep
-const at45 = center + 45 / 0.5 / barStep
-const at90 = center + 90 / 0.5 / barStep
-const at180 = center + 180 / 0.5 / barStep
+const centerIndex = Math.floor(barCount / 2)
+const atMinus180 = centerIndex - 180 / 0.5 / barStep
+const atMinus90 = centerIndex - 90 / 0.5 / barStep
+const atMinus45 = centerIndex - 45 / 0.5 / barStep
+const at45 = centerIndex + 45 / 0.5 / barStep
+const at90 = centerIndex + 90 / 0.5 / barStep
+const at180 = centerIndex + 180 / 0.5 / barStep
 const bars = Array.from({ length: barCount }, (_, i) => {
     const centerX = containerWidth / 2
     const width = 1
-    const offset = (i - center) * barStep
+    const offset = (i - centerIndex) * barStep
     const pos = new Vector(centerX + offset - width, 0)
 
     return pos
@@ -105,32 +105,38 @@ const useCropperRotateHandler = () => {
 
             bar.style.transform = `translateX(${newPos.x}px)`
 
-            const currentCenter = Math.round(center - offsetForce.x / barStep)
+            const currentCenter = Math.round(centerIndex - offsetForce.x / barStep)
 
+            // opacity style
             if (i > currentCenter - keep && i < currentCenter + keep) {
                 bar.style.opacity = '1'
             }
 
+            // receding opacity style for left side
             if (i < currentCenter - keep) {
                 const op = Math.abs(i - (currentCenter - keep)) / 10
                 bar.style.opacity = `${1 - op}`
             }
 
+            // receding opacity style for right side
             if (i > currentCenter + keep) {
                 const op = Math.abs(i - (currentCenter + keep)) / 10
                 bar.style.opacity = `${1 - op}`
             }
 
-            if (i === center) {
+            // center style
+            if (i === centerIndex) {
                 bar.style.backgroundColor = '#ff9cd3'
                 bar.style.height = '16px'
             }
 
+            // 180 and -180 style
             if (i === atMinus180 || i === at180) {
                 bar.style.backgroundColor = '#d1d5dc'
                 bar.style.height = '16px'
             }
 
+            // 90, -90, 45, -45 style
             if (
                 i === atMinus90 ||
                 i === at90 ||
@@ -146,7 +152,7 @@ const useCropperRotateHandler = () => {
     return [
         containerRef,
         barRefs,
-        center,
+        centerIndex,
         atMinus180,
         atMinus90,
         atMinus45,
