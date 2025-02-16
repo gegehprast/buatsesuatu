@@ -74,38 +74,6 @@ const CropperImage: React.FC<CropperImageProps> = ({ src, ...props }) => {
                     <p className="text-white">Loading...</p>
                 </div>
             )}
-
-            {/* x,y dot debug */}
-            <div
-                className="absolute bg-red-500 w-1 h-1"
-                style={{
-                    transform: `translate(${imgPos.x}px, ${imgPos.y}px)`,
-                }}
-            ></div>
-
-            {/* x,y dot debug */}
-            <div
-                className="absolute bg-blue-500 w-1 h-1"
-                style={{
-                    transform: `translate(${imgPos.x + imgSize.width}px, ${imgPos.y}px)`,
-                }}
-            ></div>
-
-            {/* x,y dot debug */}
-            <div
-                className="absolute bg-green-500 w-1 h-1"
-                style={{
-                    transform: `translate(${imgPos.x}px, ${imgPos.y + imgSize.height}px)`,
-                }}
-            ></div>
-
-            {/* x,y dot debug */}
-            <div
-                className="absolute bg-yellow-500 w-1 h-1"
-                style={{
-                    transform: `translate(${imgPos.x + imgSize.width}px, ${imgPos.y + imgSize.height}px)`,
-                }}
-            ></div>
         </>
     )
 }
