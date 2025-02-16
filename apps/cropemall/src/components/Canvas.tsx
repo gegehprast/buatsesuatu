@@ -29,7 +29,7 @@ const Canvas: React.FC<CanvasProps> = ({ croppaRefs }) => {
     }, [images])
 
     return (
-        <div className="grid grid-cols-1 gap-2 p-2 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 p-2 md:grid-cols-2 xl:grid-cols-3 mb-20">
             {images.map((img, i) => (
                 <Croppa
                     ref={croppaRefs.current[i]}
