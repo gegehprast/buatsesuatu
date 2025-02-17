@@ -48,6 +48,19 @@ class Vector {
         return this.sub(v).mag()
     }
 
+    public rotate(center: Vector, angle: number) {
+        const x = this.x - center.x
+        const y = this.y - center.y
+
+        const cos = Math.cos(angle)
+        const sin = Math.sin(angle)
+
+        const xPrime = x * cos - y * sin
+        const yPrime = x * sin + y * cos
+
+        return new Vector(xPrime + center.x, yPrime + center.y)
+    }
+
     public copy() {
         return new Vector(this.x, this.y)
     }
