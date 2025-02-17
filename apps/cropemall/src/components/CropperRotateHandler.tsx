@@ -18,9 +18,9 @@ const CropperRotateHandler: React.FC = () => {
         <div className="absolute bottom-0 left-0 space-x-2 w-full p-2 flex items-center text-white">
             <div
                 ref={containerRef}
-                className="relative w-[400px] mx-auto h-6 flex items-center"
+                className="relative w-[400px] mx-auto h-6 flex items-center touch-none"
             >
-                {/* rotation lebel */}
+                {/* rotation label */}
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 text-sm">
                     {radianToText(imgRotation)}°
                 </div>

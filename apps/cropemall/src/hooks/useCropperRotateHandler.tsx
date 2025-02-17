@@ -47,6 +47,24 @@ const useCropperRotateHandler = () => {
 
         if (!container) return
 
+        const handleRotation = (clientX: number, startX: number) => {
+            currPos.current = new Vector(clientX, 0)
+            const force = currPos.current.sub(new Vector(startX, 0))
+
+            setImgRotation((prev) => {
+                const currentForce = radiansToOffsetForce(prev)
+                const newForce = currentForce.add(new Vector(force.x, 0))
+                const radian = offsetForceToRadians(newForce)
+
+                if (radian > maxAngleRadian) return maxAngleRadian
+                if (radian < -maxAngleRadian) return -maxAngleRadian
+
+                return radian
+            })
+
+            startPos.current = currPos.current
+        }
+        
         function handleMouseDown(e: MouseEvent) {
             e.preventDefault()
             e.stopPropagation()
@@ -56,30 +74,12 @@ const useCropperRotateHandler = () => {
             function handleMouseMove(e: MouseEvent) {
                 e.preventDefault()
                 e.stopPropagation()
-
-                currPos.current = new Vector(e.clientX, e.clientY)
-
-                const force = currPos.current.sub(startPos.current)
-
-                setImgRotation((prev) => {
-                    const currentForce = radiansToOffsetForce(prev)
-                    const newForce = currentForce.add(new Vector(force.x, 0))
-                    const radian = offsetForceToRadians(newForce)
-
-                    if (radian > maxAngleRadian) return maxAngleRadian
-
-                    if (radian < -maxAngleRadian) return -maxAngleRadian
-
-                    return radian
-                })
-
-                startPos.current = currPos.current
+                handleRotation(e.clientX, startPos.current.x)
             }
 
             function handleMouseUp(e: MouseEvent) {
                 e.preventDefault()
                 e.stopPropagation()
-
                 document.body.removeEventListener('mousemove', handleMouseMove)
             }
 
@@ -88,11 +88,48 @@ const useCropperRotateHandler = () => {
                 once: true,
             })
         }
+        
+        function handleTouchStart(e: TouchEvent) {
+            e.preventDefault()
+            e.stopPropagation()
 
+            if (e.touches.length !== 1) return
+
+            const touch = e.touches[0]
+            startPos.current = new Vector(touch.clientX, touch.clientY)
+
+            function handleTouchMove(e: TouchEvent) {
+                e.preventDefault()
+                e.stopPropagation()
+
+                if (e.touches.length !== 1) return
+
+                const touch = e.touches[0]
+                handleRotation(touch.clientX, startPos.current.x)
+            }
+
+            function handleTouchEnd(e: TouchEvent) {
+                e.preventDefault()
+                e.stopPropagation()
+                document.body.removeEventListener('touchmove', handleTouchMove)
+            }
+
+            document.body.addEventListener('touchmove', handleTouchMove, {
+                passive: false,
+            })
+            document.body.addEventListener('touchend', handleTouchEnd, {
+                once: true,
+            })
+        }
+        
         container.addEventListener('mousedown', handleMouseDown)
-
+        container.addEventListener('touchstart', handleTouchStart, {
+            passive: false,
+        })
+        
         return () => {
             container.removeEventListener('mousedown', handleMouseDown)
+            container.removeEventListener('touchstart', handleTouchStart)
         }
     }, [barRefs, setImgRotation])
 

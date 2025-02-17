@@ -128,6 +128,26 @@ const CropperMarkerHandler: React.FC<CropperMarkerHandlerProps> = ({
 
         if (!element || !imgElement) return
 
+        const handleResize = (
+            clientX: number,
+            clientY: number,
+            startPosition: Vector,
+        ) => {
+            if (!imgElement) return
+
+            const { newSize, newPos } = resize(
+                type,
+                imgBounds,
+                cropSize,
+                cropPos,
+                startPosition,
+                new Vector(clientX, clientY),
+            )
+
+            setCropSize(newSize)
+            setCropPos(() => newPos)
+        }
+
         function handleMouseDown(e: MouseEvent) {
             e.preventDefault()
             e.stopPropagation()
@@ -137,26 +157,12 @@ const CropperMarkerHandler: React.FC<CropperMarkerHandlerProps> = ({
             function onMouseMove(e: MouseEvent) {
                 e.preventDefault()
                 e.stopPropagation()
-
-                if (!imgElement) return
-
-                const { newSize, newPos } = resize(
-                    type,
-                    imgBounds,
-                    cropSize,
-                    cropPos,
-                    startPosition,
-                    new Vector(e.pageX, e.pageY),
-                )
-
-                setCropSize(newSize)
-                setCropPos(() => newPos)
+                handleResize(e.pageX, e.pageY, startPosition)
             }
 
             function onMouseUp(e: MouseEvent) {
                 e.preventDefault()
                 e.stopPropagation()
-
                 document.body.removeEventListener('mousemove', onMouseMove)
             }
 
@@ -164,17 +170,54 @@ const CropperMarkerHandler: React.FC<CropperMarkerHandlerProps> = ({
             document.body.addEventListener('mouseup', onMouseUp, { once: true })
         }
 
+        function handleTouchStart(e: TouchEvent) {
+            e.preventDefault()
+            e.stopPropagation()
+
+            if (e.touches.length !== 1) return
+
+            const touch = e.touches[0]
+            const startPosition = new Vector(touch.pageX, touch.pageY)
+
+            function onTouchMove(e: TouchEvent) {
+                e.preventDefault()
+                e.stopPropagation()
+
+                if (e.touches.length !== 1) return
+
+                const touch = e.touches[0]
+                handleResize(touch.pageX, touch.pageY, startPosition)
+            }
+
+            function onTouchEnd(e: TouchEvent) {
+                e.preventDefault()
+                e.stopPropagation()
+                document.body.removeEventListener('touchmove', onTouchMove)
+            }
+
+            document.body.addEventListener('touchmove', onTouchMove, {
+                passive: false,
+            })
+            document.body.addEventListener('touchend', onTouchEnd, {
+                once: true,
+            })
+        }
+
         element.addEventListener('mousedown', handleMouseDown)
+        element.addEventListener('touchstart', handleTouchStart, {
+            passive: false,
+        })
 
         return () => {
             element.removeEventListener('mousedown', handleMouseDown)
+            element.removeEventListener('touchstart', handleTouchStart)
         }
     }, [cropPos, cropSize, img, imgBounds, setCropPos, setCropSize, type])
 
     return (
         <div
             ref={elementRef}
-            className={`absolute w-[4px] h-[4px] bg-mf-500 ${styleMap.get(type)}`}
+            className={`absolute w-[4px] h-[4px] bg-mf-500 touch-none ${styleMap.get(type)}`}
         />
     )
 }

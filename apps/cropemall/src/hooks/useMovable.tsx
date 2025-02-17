@@ -43,10 +43,10 @@ const constraint = <T extends HTMLElement>(
 }
 
 /**
- * 
+ *
  * @param edges The edges of the movable element
  * @param dontUpdateStyle If true the element transformation style will not be updated
- * @returns 
+ * @returns
  */
 const useMovable = <T extends HTMLElement>(
     edges?: Edges,
@@ -73,18 +73,7 @@ const useMovable = <T extends HTMLElement>(
                 e.stopPropagation()
 
                 currPos.current = new Vector(e.clientX, e.clientY)
-
-                const force = currPos.current.sub(startPos.current)
-
-                setPosition((pos) => {
-                    const newPos = pos.add(force)
-
-                    if (!element) return newPos
-
-                    return constraint(element, newPos, edges)
-                })
-
-                startPos.current = currPos.current
+                updatePosition()
             }
 
             function handleMouseUp(e: MouseEvent) {
@@ -100,10 +89,59 @@ const useMovable = <T extends HTMLElement>(
             })
         }
 
+        function handleTouchStart(e: TouchEvent) {
+            e.preventDefault()
+            e.stopPropagation()
+
+            if (e.touches.length !== 1) return
+
+            const touch = e.touches[0]
+            startPos.current = new Vector(touch.clientX, touch.clientY)
+
+            function handleTouchMove(e: TouchEvent) {
+                e.preventDefault()
+                e.stopPropagation()
+
+                if (e.touches.length !== 1) return
+
+                const touch = e.touches[0]
+                currPos.current = new Vector(touch.clientX, touch.clientY)
+                updatePosition()
+            }
+
+            function handleTouchEnd(e: TouchEvent) {
+                e.preventDefault()
+                e.stopPropagation()
+
+                document.body.removeEventListener('touchmove', handleTouchMove)
+            }
+
+            document.body.addEventListener('touchmove', handleTouchMove, {
+                passive: false,
+            })
+            document.body.addEventListener('touchend', handleTouchEnd, {
+                once: true,
+            })
+        }
+
+        function updatePosition() {
+            const force = currPos.current.sub(startPos.current)
+
+            setPosition((pos) => {
+                const newPos = pos.add(force)
+                if (!element) return newPos
+                return constraint(element, newPos, edges)
+            })
+
+            startPos.current = currPos.current
+        }
+
         element.addEventListener('mousedown', handleMouseDown)
+        element.addEventListener('touchstart', handleTouchStart)
 
         return () => {
             element.removeEventListener('mousedown', handleMouseDown)
+            element.removeEventListener('touchstart', handleTouchStart)
         }
     }, [edges])
 
@@ -111,6 +149,7 @@ const useMovable = <T extends HTMLElement>(
         if (!elementRef.current) return
 
         elementRef.current.style.cursor = 'move'
+        elementRef.current.style.touchAction = 'none'
 
         if (dontUpdateStyle) return
 
