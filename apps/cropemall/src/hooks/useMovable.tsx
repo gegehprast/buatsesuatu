@@ -137,7 +137,9 @@ const useMovable = <T extends HTMLElement>(
         }
 
         element.addEventListener('mousedown', handleMouseDown)
-        element.addEventListener('touchstart', handleTouchStart)
+        element.addEventListener('touchstart', handleTouchStart, {
+            passive: false,
+        })
 
         return () => {
             element.removeEventListener('mousedown', handleMouseDown)
