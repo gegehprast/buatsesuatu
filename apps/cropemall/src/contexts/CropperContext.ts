@@ -1,4 +1,5 @@
 import { UseMovableSetPosition } from '@/hooks/useMovable'
+import { Bounds } from '@/libs/cropper';
 import { Vector } from '@buatsesuatu/math'
 import React, { createContext } from 'react'
 
@@ -33,6 +34,7 @@ export interface CropperContextValue {
 
     imgRotation: number
     setImgRotation: React.Dispatch<React.SetStateAction<number>>
+    imgBounds: Bounds
 
     result: string | undefined
     setResult: React.Dispatch<React.SetStateAction<string | undefined>>
@@ -71,6 +73,12 @@ const CropperContext = createContext<CropperContextValue>({
 
     imgRotation: 0,
     setImgRotation: () => {},
+    imgBounds: {
+        minX: 0,
+        maxX: 0,
+        minY: 0,
+        maxY: 0,
+    },
 
     result: undefined,
     setResult: () => {},

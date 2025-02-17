@@ -10,7 +10,7 @@ const CropperResult = () => {
                     <img
                         src={result}
                         alt="Result"
-                        className="rounded h-full object-contain"
+                        className="h-full object-contain outline-1 outline-mf-500"
                     />
                 </div>
             )}

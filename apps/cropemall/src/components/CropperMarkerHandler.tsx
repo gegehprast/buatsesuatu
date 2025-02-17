@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { useCropper } from '@/hooks/useCropper'
 import { Vector } from '@buatsesuatu/math'
 import { Size } from '@/contexts/CropperContext'
+import { Bounds } from '@/libs/cropper'
 
 interface CropperMarkerHandlerProps {
     type:
@@ -34,15 +35,14 @@ const styleMap = new Map([
 
 type Resizer = (
     type: CropperMarkerHandlerProps['type'],
-    imgSize: Size,
-    imgPos: Vector,
+    imgBounds: Bounds,
     size: Size,
     pos: Vector,
     start: Vector,
     mouse: Vector,
 ) => { newSize: Size; newPos: Vector }
 
-const resize: Resizer = (type, imgSize, imgPos, size, pos, start, mouse) => {
+const resize: Resizer = (type, imgBounds, size, pos, start, mouse) => {
     const newSize = { width: size.width, height: size.height }
     const newPos = pos.copy()
     const aspectRatio = size.width / size.height
@@ -87,21 +87,26 @@ const resize: Resizer = (type, imgSize, imgPos, size, pos, start, mouse) => {
             break
     }
 
-    // Ensure the crop size does not exceed the image size
-    if (newPos.x < imgPos.x) {
-        newPos.x = imgPos.x
+    // ensure the crop area is within the image bounds
+    if (newPos.x < imgBounds.minX) {
+        newPos.x = imgBounds.minX
     }
-    if (newPos.y < imgPos.y) {
-        newPos.y = imgPos.y
+
+    if (newPos.y < imgBounds.minY) {
+        newPos.y = imgBounds.minY
     }
-    if (newPos.x + newSize.width > imgPos.x + imgSize.width) {
-        newSize.width = imgPos.x + imgSize.width - newPos.x
+
+    if (newPos.x + newSize.width > imgBounds.maxX) {
+        newSize.width = imgBounds.maxX - newPos.x
+
         if (type.includes('top') || type.includes('bottom')) {
             newSize.height = newSize.width / aspectRatio
         }
     }
-    if (newPos.y + newSize.height > imgPos.y + imgSize.height) {
-        newSize.height = imgPos.y + imgSize.height - newPos.y
+
+    if (newPos.y + newSize.height > imgBounds.maxY) {
+        newSize.height = imgBounds.maxY - newPos.y
+        
         if (type.includes('left') || type.includes('right')) {
             newSize.width = newSize.height * aspectRatio
         }
@@ -113,14 +118,15 @@ const resize: Resizer = (type, imgSize, imgPos, size, pos, start, mouse) => {
 const CropperMarkerHandler: React.FC<CropperMarkerHandlerProps> = ({
     type,
 }) => {
-    const { imgSize, imgPos, cropSize, setCropSize, cropPos, setCropPos } =
+    const { img, cropSize, setCropSize, cropPos, setCropPos, imgBounds } =
         useCropper()
     const elementRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const element = elementRef.current
+        const imgElement = img.current
 
-        if (!element) return
+        if (!element || !imgElement) return
 
         function handleMouseDown(e: MouseEvent) {
             e.preventDefault()
@@ -132,10 +138,11 @@ const CropperMarkerHandler: React.FC<CropperMarkerHandlerProps> = ({
                 e.preventDefault()
                 e.stopPropagation()
 
+                if (!imgElement) return
+
                 const { newSize, newPos } = resize(
                     type,
-                    imgSize,
-                    imgPos,
+                    imgBounds,
                     cropSize,
                     cropPos,
                     startPosition,
@@ -162,7 +169,7 @@ const CropperMarkerHandler: React.FC<CropperMarkerHandlerProps> = ({
         return () => {
             element.removeEventListener('mousedown', handleMouseDown)
         }
-    }, [cropPos, cropSize, imgPos, imgSize, setCropPos, setCropSize, type])
+    }, [cropPos, cropSize, img, imgBounds, setCropPos, setCropSize, type])
 
     return (
         <div

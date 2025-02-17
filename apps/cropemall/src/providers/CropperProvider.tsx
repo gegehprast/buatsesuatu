@@ -1,9 +1,10 @@
 import useMovable from '@/hooks/useMovable'
-import React, { useImperativeHandle, useRef, useState } from 'react'
+import React, { useImperativeHandle, useMemo, useRef, useState } from 'react'
 import CropperContext from '../contexts/CropperContext'
 import useCropperDownload from '@/hooks/useCropperDownload'
 import useCropperReset from '@/hooks/useCropperReset'
 import useCropperResult from '@/hooks/useCropperResult'
+import { getBounds } from '@/libs/cropper'
 
 export type CropperMethods = {
     download: () => Promise<void>
@@ -33,24 +34,34 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
         undefined,
         true,
     )
-    const [crop, cropPos, setCropPos] = useMovable<HTMLDivElement>({
-        top: imgPos.y,
-        left: imgPos.x,
-        right: imgPos.x + imgSize.width,
-        bottom: imgPos.y + imgSize.height,
-    })
 
     const [imgRotation, setImgRotation] = useState(0)
+
+    const imgBounds = useMemo(() => {
+        return getBounds(
+            imgPos.x,
+            imgPos.y,
+            imgSize.width,
+            imgSize.height,
+            imgRotation,
+        )
+    }, [imgPos, imgSize, imgRotation])
+
+    const [crop, cropPos, setCropPos] = useMovable<HTMLDivElement>({
+        top: imgBounds.minY,
+        left: imgBounds.minX,
+        right: imgBounds.maxX,
+        bottom: imgBounds.maxY,
+    })
 
     const [result, setResult] = useState<string | undefined>(undefined)
 
     const download = useCropperDownload({
         img,
-        imgSize,
         imgRotation,
+        imgBounds,
         cropSize,
         cropPos,
-        imgPos,
     })
     const reset = useCropperReset({
         container,
@@ -63,11 +74,10 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
     })
     const getResult = useCropperResult({
         img,
-        imgSize,
         imgRotation,
+        imgBounds,
         cropSize,
         cropPos,
-        imgPos,
         setResult,
     })
 
@@ -110,6 +120,7 @@ const CropperProvider: React.FC<CropperProviderProps> = ({ children, ref }) => {
 
                 imgRotation,
                 setImgRotation,
+                imgBounds,
 
                 result,
                 setResult,

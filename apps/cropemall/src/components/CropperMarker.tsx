@@ -21,6 +21,7 @@ const CropperMarker: React.FC = () => {
         imgRotation,
     } = useCropper()
 
+    // initial crop size and position
     useEffect(() => {
         if (!containerInitialized || !imageInitialized || cropInitialized)
             return
