@@ -17,19 +17,19 @@ interface CropperMarkerHandlerProps {
 }
 
 const styleMap = new Map([
-    ['top-left', '-top-[4px] -left-[4px] cursor-nw-resize'],
-    ['top-right', '-top-[4px] -right-[4px] cursor-ne-resize'],
-    ['bottom-right', '-bottom-[4px] -right-[4px] cursor-se-resize'],
-    ['bottom-left', '-bottom-[4px] -left-[4px] cursor-sw-resize'],
-    ['left', 'top-1/2 -left-[4px] transform -translate-y-1/2 cursor-w-resize'],
-    ['top', '-top-[4px] left-1/2 transform -translate-x-1/2 cursor-n-resize'],
+    ['top-left', '-top-[10px] -left-[10px] cursor-nw-resize'],
+    ['top-right', '-top-[10px] -right-[10px] cursor-ne-resize'],
+    ['bottom-right', '-bottom-[10px] -right-[10px] cursor-se-resize'],
+    ['bottom-left', '-bottom-[10px] -left-[10px] cursor-sw-resize'],
+    ['left', 'top-1/2 -left-[10px] transform -translate-y-1/2 cursor-w-resize'],
+    ['top', '-top-[10px] left-1/2 transform -translate-x-1/2 cursor-n-resize'],
     [
         'right',
-        'top-1/2 -right-[4px] transform -translate-y-1/2 cursor-e-resize',
+        'top-1/2 -right-[10px] transform -translate-y-1/2 cursor-e-resize',
     ],
     [
         'bottom',
-        '-bottom-[4px] left-1/2 transform -translate-x-1/2 cursor-s-resize',
+        '-bottom-[10px] left-1/2 transform -translate-x-1/2 cursor-s-resize',
     ],
 ])
 
@@ -217,7 +217,7 @@ const CropperMarkerHandler: React.FC<CropperMarkerHandlerProps> = ({
     return (
         <div
             ref={elementRef}
-            className={`absolute w-[4px] h-[4px] bg-mf-500 touch-none ${styleMap.get(type)}`}
+            className={`absolute w-[10px] h-[10px] bg-mf-500 touch-none ${styleMap.get(type)}`}
         />
     )
 }
