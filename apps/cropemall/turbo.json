@@ -4,9 +4,9 @@
     ],
     "tasks": {
         "build": {
-            "env": [
-                "MODE",
-                "VITE_GOOGLE_SITE_VERIFICATION"
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                ".env*"
             ]
         }
     }
