@@ -124,6 +124,9 @@ importers:
 
   apps/react-playground:
     dependencies:
+      '@buatsesuatu/math':
+        specifier: workspace:*
+        version: link:../../packages/math
       '@tailwindcss/vite':
         specifier: ^4.0.5
         version: 4.0.5(vite@6.1.0(@types/node@22.10.10)(jiti@2.4.2)(lightningcss@1.29.1)(tsx@4.19.2)(yaml@2.7.0))
