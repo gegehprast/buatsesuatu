@@ -7,9 +7,7 @@ const Footer = () => {
                 <label className="font-semibold">
                     All your files never leave your browser.
                 </label>{' '}
-                <label>
-                    Mobile currently not supported.
-                </label>{' '}
+                <label>Mobile currently not supported.</label>{' '}
                 <label>
                     Source code available on{' '}
                     <a

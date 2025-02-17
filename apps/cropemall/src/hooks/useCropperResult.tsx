@@ -3,12 +3,7 @@ import { CropperContextValue } from '@/contexts/CropperContext'
 
 type UseCropperResultProps = Pick<
     CropperContextValue,
-    | 'img'
-    | 'imgRotation'
-    | 'imgBounds'
-    | 'cropSize'
-    | 'cropPos'
-    | 'setResult'
+    'img' | 'imgRotation' | 'imgBounds' | 'cropSize' | 'cropPos' | 'setResult'
 >
 
 const useCropperResult = ({

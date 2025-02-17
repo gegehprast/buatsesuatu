@@ -106,7 +106,7 @@ const resize: Resizer = (type, imgBounds, size, pos, start, mouse) => {
 
     if (newPos.y + newSize.height > imgBounds.maxY) {
         newSize.height = imgBounds.maxY - newPos.y
-        
+
         if (type.includes('left') || type.includes('right')) {
             newSize.width = newSize.height * aspectRatio
         }

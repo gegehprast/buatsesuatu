@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
 type Bar = {
-    positionX: number,
-    opacity: number,
+    positionX: number
+    opacity: number
 }
 
 const containerWidth = 1000
@@ -30,7 +30,7 @@ const initialBars: Bar[] = Array.from({ length: barCount }, (_, i) => {
     } else {
         opacity = 1
     }
-    
+
     return { positionX, opacity }
 })
 

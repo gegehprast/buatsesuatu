@@ -1,5 +1,5 @@
 import { UseMovableSetPosition } from '@/hooks/useMovable'
-import { Bounds } from '@/libs/cropper';
+import { Bounds } from '@/libs/cropper'
 import { Vector } from '@buatsesuatu/math'
 import React, { createContext } from 'react'
 
