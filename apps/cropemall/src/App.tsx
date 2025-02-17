@@ -38,11 +38,11 @@ function App() {
             </main>
 
             {files.length > 0 && (
-                <div className="absolute p-2 flex flex-row gap-2 rounded bg-mf-200 bottom-4 right-8">
+                <div className="absolute p-2 flex flex-row gap-2 rounded bg-mf-200 bottom-4 left-1/2 -translate-x-1/2 lg:left-auto lg:translate-x-0 lg:right-8">
                     <button
                         onClick={crop}
                         title="Crop all"
-                        className="p-2 px-4 text-white rounded-md bg-mf-500 hover:bg-mf-600 transition-colors duration-300 ease-in-out cursor-pointer"
+                        className="p-2 px-4 text-white rounded-md bg-mf-500 hover:bg-mf-600 transition-colors duration-300 ease-in-out cursor-pointer whitespace-nowrap"
                     >
                         cropemall
                     </button>
@@ -50,7 +50,7 @@ function App() {
                     <button
                         onClick={reset}
                         title="Reset all"
-                        className="p-2 px-4 text-white rounded-md bg-gray-500 hover:bg-gray-600 transition-colors duration-300 ease-in-out cursor-pointer"
+                        className="p-2 px-4 text-white rounded-md bg-gray-500 hover:bg-gray-600 transition-colors duration-300 ease-in-out cursor-pointer whitespace-nowrap"
                     >
                         Reset all
                     </button>
@@ -60,7 +60,7 @@ function App() {
                             setFiles([])
                         }}
                         title="Reset all"
-                        className="p-2 px-4 text-white rounded-md bg-gray-500 hover:bg-gray-600 transition-colors duration-300 ease-in-out cursor-pointer"
+                        className="p-2 px-4 text-white rounded-md bg-gray-500 hover:bg-gray-600 transition-colors duration-300 ease-in-out cursor-pointer whitespace-nowrap"
                     >
                         Start over
                     </button>
