@@ -42,9 +42,15 @@ const constraint = <T extends HTMLElement>(
     return newPos
 }
 
+/**
+ * 
+ * @param edges The edges of the movable element
+ * @param dontUpdateStyle If true the element transformation style will not be updated
+ * @returns 
+ */
 const useMovable = <T extends HTMLElement>(
     edges?: Edges,
-    immutable?: boolean,
+    dontUpdateStyle?: boolean,
 ): [React.RefObject<T | null>, Vector, UseMovableSetPosition] => {
     const elementRef = useRef<T>(null)
     const startPos = useRef(new Vector(0, 0))
@@ -106,10 +112,10 @@ const useMovable = <T extends HTMLElement>(
 
         elementRef.current.style.cursor = 'move'
 
-        if (immutable) return
+        if (dontUpdateStyle) return
 
         elementRef.current.style.transform = `translate(${position.x}px, ${position.y}px)`
-    }, [position, immutable])
+    }, [position, dontUpdateStyle])
 
     const _setPosition: UseMovableSetPosition = (setter, _edges) => {
         setPosition((pos) => {
