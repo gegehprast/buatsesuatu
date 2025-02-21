@@ -9,7 +9,7 @@ export type Edges = {
 }
 
 export type UseMovableSetPosition = (
-    setter: (pos: Vector) => Vector,
+    setter: (prev: Vector) => Vector,
     edges?: Edges,
 ) => void
 
