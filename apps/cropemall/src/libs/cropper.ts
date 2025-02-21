@@ -1,10 +1,25 @@
 import { Vector } from '@buatsesuatu/math'
 
+export type Size = { width: number; height: number }
+
 export type Bounds = {
     minX: number
     maxX: number
     minY: number
     maxY: number
+}
+
+export type State = {
+    renderedImageBounds: Bounds
+    renderedCropperSize: Size
+    renderedCropperPos: Vector
+
+    imageRotation: number
+
+    actualImageDimension: Size
+    actualImageBounds: Bounds
+    actualCropperSize: Size
+    actualCropperPos: Vector
 }
 
 export const getBounds = (
@@ -34,86 +49,99 @@ export const getBounds = (
     return { minX, maxX, minY, maxY }
 }
 
-export const getResult = (
+export const getState = (
     image: HTMLImageElement,
     renderedImageRotation: number,
     renderedImageBounds: Bounds,
-    cropperSize: { width: number; height: number },
-    cropperPos: Vector,
-) => {
+    renderedCropperSize: Size,
+    renderedCropperPos: Vector,
+): State => {
+    const actualImageBounds = getBounds(
+        0,
+        0,
+        image.naturalWidth,
+        image.naturalHeight,
+        renderedImageRotation,
+    )
+    const actualImageDimension = {
+        width: actualImageBounds.maxX - actualImageBounds.minX,
+        height: actualImageBounds.maxY - actualImageBounds.minY,
+    }
+
+    const ratioToActual =
+        actualImageDimension.width /
+        (renderedImageBounds.maxX - renderedImageBounds.minX)
+    const actualCropperSize = {
+        width: renderedCropperSize.width * ratioToActual,
+        height: renderedCropperSize.height * ratioToActual,
+    }
+    const distCropperToImage = renderedCropperPos.sub(
+        new Vector(renderedImageBounds.minX, renderedImageBounds.minY),
+    )
+    const actualCropperPos = distCropperToImage.mult(ratioToActual)
+
+    return {
+        renderedImageBounds,
+        renderedCropperSize,
+        renderedCropperPos,
+
+        imageRotation: renderedImageRotation,
+
+        actualImageDimension,
+        actualImageBounds,
+        actualCropperSize,
+        actualCropperPos,
+    }
+}
+
+export function getResult(image: HTMLImageElement, state: State) {
     return new Promise<string | null>((resolve) => {
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
+        const croppedCanvas = document.createElement('canvas')
+        const croppedCtx = croppedCanvas.getContext('2d')
 
-        if (!ctx) return
+        if (!ctx || !croppedCtx) return
 
-        const bounds = getBounds(
-            0,
-            0,
-            image.naturalWidth,
-            image.naturalHeight,
-            renderedImageRotation,
-        )
-
-        const renderedWidth =
-            renderedImageBounds.maxX - renderedImageBounds.minX
-        const naturalWidth = bounds.maxX - bounds.minX
-        const naturalHeight = bounds.maxY - bounds.minY
-
-        ctx.canvas.width = naturalWidth
-        ctx.canvas.height = naturalHeight
+        ctx.canvas.width = state.actualImageDimension.width
+        ctx.canvas.height = state.actualImageDimension.height
 
         // apply rotation
         ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2)
-        ctx.rotate(renderedImageRotation)
+        ctx.rotate(state.imageRotation)
         ctx.translate(-ctx.canvas.width / 2, -ctx.canvas.height / 2)
 
         // draw the image to the canvas
         ctx.drawImage(
             image,
-            bounds.minX,
-            bounds.minY,
-            naturalWidth,
-            naturalHeight,
+            state.actualImageBounds.minX,
+            state.actualImageBounds.minY,
+            ctx.canvas.width,
+            ctx.canvas.height,
             0,
             0,
-            naturalWidth,
-            naturalHeight,
+            ctx.canvas.width,
+            ctx.canvas.height,
         )
 
         // reset the rotation
         ctx.setTransform(1, 0, 0, 1, 0, 0)
 
-        // crop area
-        const ratioToNatural = naturalWidth / renderedWidth
-        const actualCropperSize = {
-            width: cropperSize.width * ratioToNatural,
-            height: cropperSize.height * ratioToNatural,
-        }
-        const distCropperToImage = cropperPos.sub(
-            new Vector(renderedImageBounds.minX, renderedImageBounds.minY),
-        )
-        const actualPosition = distCropperToImage.mult(ratioToNatural)
-
         // crate a new canvas to draw the cropped image
-        const croppedCanvas = document.createElement('canvas')
-        const croppedCtx = croppedCanvas.getContext('2d')
 
-        if (!croppedCtx) return
-
-        croppedCtx.canvas.width = actualCropperSize.width
-        croppedCtx.canvas.height = actualCropperSize.height
+        croppedCtx.canvas.width = state.actualCropperSize.width
+        croppedCtx.canvas.height = state.actualCropperSize.height
 
         croppedCtx.drawImage(
             canvas,
-            actualPosition.x,
-            actualPosition.y,
-            actualCropperSize.width,
-            actualCropperSize.height,
+            state.actualCropperPos.x,
+            state.actualCropperPos.y,
+            croppedCtx.canvas.width,
+            croppedCtx.canvas.height,
             0,
             0,
-            actualCropperSize.width,
-            actualCropperSize.height,
+            croppedCtx.canvas.width,
+            croppedCtx.canvas.height,
         )
 
         // save the current state of the canvas
@@ -127,28 +155,23 @@ export const getResult = (
     })
 }
 
-export const download = async (
-    image: HTMLImageElement,
-    renderedImageRotation: number,
-    renderedImageBounds: Bounds,
-    cropperSize: { width: number; height: number },
-    cropperPos: Vector,
-) => {
-    const data = await getResult(
-        image,
-        renderedImageRotation,
-        renderedImageBounds,
-        cropperSize,
-        cropperPos,
-    )
+export async function download(image: HTMLImageElement, state: State) {
+    const data = await getResult(image, state)
 
     if (!data) {
         return
     }
 
-    const link = document.createElement('a')
-    link.href = data
-    link.download = 'cropped.png'
-    link.click()
-    link.remove()
+    function downloadImage(data: string) {
+        return new Promise<void>((resolve) => {
+            const link = document.createElement('a')
+            link.href = data
+            link.download = 'cropped.png'
+            link.click()
+            link.remove()
+            resolve()
+        })
+    }
+
+    await downloadImage(data)
 }

@@ -1,4 +1,4 @@
-import { download } from '@/libs/cropper'
+import { download, getState } from '@/libs/cropper'
 import { CropperContextValue } from '@/contexts/CropperContext'
 
 type UseCropperDownloadProps = Pick<
@@ -16,7 +16,15 @@ const useCropperDownload = ({
     const _download = async () => {
         if (!img.current) return
 
-        await download(img.current, imgRotation, imgBounds, cropSize, cropPos)
+        const state = getState(
+            img.current,
+            imgRotation,
+            imgBounds,
+            cropSize,
+            cropPos,
+        )
+
+        await download(img.current, state)
     }
 
     return _download

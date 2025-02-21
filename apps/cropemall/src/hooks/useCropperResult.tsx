@@ -1,4 +1,4 @@
-import { getResult } from '@/libs/cropper'
+import { getResult, getState } from '@/libs/cropper'
 import { CropperContextValue } from '@/contexts/CropperContext'
 
 type UseCropperResultProps = Pick<
@@ -17,13 +17,15 @@ const useCropperResult = ({
     const _getResult = async () => {
         if (!img.current) return
 
-        const result = await getResult(
+        const state = getState(
             img.current,
             imgRotation,
             imgBounds,
             cropSize,
             cropPos,
         )
+
+        const result = await getResult(img.current, state)
 
         if (!result) return
 
