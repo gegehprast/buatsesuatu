@@ -1,9 +1,30 @@
 import { UseMovableSetPosition } from '@/hooks/useMovable'
-import { Bounds } from '@/libs/cropper'
+import { Bounds, Size, State } from '@/libs/cropper'
 import { Vector } from '@buatsesuatu/math'
 import React, { createContext } from 'react'
 
-export type Size = { width: number; height: number }
+export const defaultState: State = {
+    renderedImageBounds: {
+        minX: 0,
+        maxX: 0,
+        minY: 0,
+        maxY: 0,
+    },
+    renderedCropperSize: { width: 0, height: 0 },
+    renderedCropperPos: new Vector(0, 0),
+
+    imageRotation: 0,
+
+    actualImageDimension: { width: 0, height: 0 },
+    actualImageBounds: {
+        minX: 0,
+        maxX: 0,
+        minY: 0,
+        maxY: 0,
+    },
+    actualCropperSize: { width: 0, height: 0 },
+    actualCropperPos: new Vector(0, 0),
+}
 
 export interface CropperContextValue {
     imageLoaded: boolean
@@ -42,6 +63,9 @@ export interface CropperContextValue {
     download: () => void
     reset: () => void
     getResult: () => Promise<string | undefined>
+    setActualCropperSize: (setter: (prev: Size) => Size) => void
+
+    state: State
 }
 
 const CropperContext = createContext<CropperContextValue>({
@@ -86,6 +110,9 @@ const CropperContext = createContext<CropperContextValue>({
     download: () => {},
     reset: () => {},
     getResult: async () => undefined,
+    setActualCropperSize: () => {},
+
+    state: defaultState,
 })
 
 export default CropperContext

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useCropper } from '@/hooks/useCropper'
 import { Vector } from '@buatsesuatu/math'
-import { Size } from '@/contexts/CropperContext'
-import { Bounds } from '@/libs/cropper'
+import { Bounds, Size } from '@/libs/cropper'
 
 interface CropperMarkerHandlerProps {
     type:
