@@ -4,12 +4,12 @@ export class Triangle {
     public bufferLayout: GPUVertexBufferLayout
 
     constructor(device: GPUDevice) {
-        // x y z r g b
+        // x y z u v
         // prettier-ignore
         const vertices = new Float32Array([
-            0.0,  0.0,  0.5, 1.0, 0.0, 0.0,
-            0.0, -0.5, -0.5, 0.0, 1.0, 0.0,
-            0.0,  0.5, -0.5, 0.0, 0.0, 1.0
+            0.0,  0.0,  0.5, 0.5, 0.0,
+            0.0, -0.5, -0.5, 0.0, 1.0,
+            0.0,  0.5, -0.5, 1.0, 1.0
         ])
 
         const usage: GPUBufferUsageFlags =
@@ -27,7 +27,7 @@ export class Triangle {
         this.buffer.unmap()
 
         this.bufferLayout = {
-            arrayStride: 4 * 6,
+            arrayStride: 4 * 5,
             attributes: [
                 {
                     shaderLocation: 0,
@@ -36,7 +36,7 @@ export class Triangle {
                 },
                 {
                     shaderLocation: 1,
-                    format: 'float32x3',
+                    format: 'float32x2',
                     offset: 4 * 3,
                 },
             ],

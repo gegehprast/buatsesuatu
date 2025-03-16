@@ -1,6 +1,7 @@
 import shader from '@/assets/triangle.vert.wgsl?raw'
 import { Triangle } from './meshes/Triangle'
 import { mat4 } from 'gl-matrix'
+import { Material } from './Material'
 
 export class Renderer {
     private canvas: HTMLCanvasElement
@@ -15,6 +16,7 @@ export class Renderer {
     private pipeline!: GPURenderPipeline
 
     private triangleMesh!: Triangle
+    private material!: Material
 
     private t: number
 
@@ -31,9 +33,9 @@ export class Renderer {
     async initialize() {
         await this.setupDevice()
 
-        this.createAssets()
+        await this.createAssets()
 
-        this.makePipeline()
+        await this.makePipeline()
     }
 
     async destroy() {
@@ -74,11 +76,17 @@ export class Renderer {
         })
     }
 
-    private createAssets() {
+    private async createAssets() {
         this.triangleMesh = new Triangle(this.device)
+        this.material = new Material()
+
+        await this.material.initialize(
+            this.device,
+            '/oiia.png',
+        )
     }
 
-    private makePipeline() {
+    private async makePipeline() {
         this.uniformBuffer = this.device.createBuffer({
             size: 4 * 16 * 3,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -90,6 +98,16 @@ export class Renderer {
                     binding: 0,
                     visibility: GPUShaderStage.VERTEX,
                     buffer: {},
+                },
+                {
+                    binding: 1,
+                    visibility: GPUShaderStage.FRAGMENT,
+                    texture: {},
+                },
+                {
+                    binding: 2,
+                    visibility: GPUShaderStage.FRAGMENT,
+                    sampler: {},
                 },
             ],
         })
@@ -103,6 +121,14 @@ export class Renderer {
                         buffer: this.uniformBuffer,
                     },
                 },
+                {
+                    binding: 1,
+                    resource: this.material.view,
+                },
+                {
+                    binding: 2,
+                    resource: this.material.sampler,
+                }
             ],
         })
 
