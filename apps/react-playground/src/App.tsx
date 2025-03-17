@@ -40,7 +40,7 @@ function Canvas() {
         }
     }, [])
 
-    return <canvas ref={canvasRef} width={800} height={600} />
+    return <canvas ref={canvasRef} width={600} height={400} />
 }
 
 export default App
