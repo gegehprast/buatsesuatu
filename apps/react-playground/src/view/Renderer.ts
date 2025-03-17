@@ -1,7 +1,9 @@
-import shader from '@/assets/triangle.vert.wgsl?raw'
-import { Triangle } from './meshes/Triangle'
+import shader from './shaders/shaders.wgsl?raw'
+import { Triangle as TriangleMesh } from '../meshes/Triangle'
 import { mat4 } from 'gl-matrix'
 import { Material } from './Material'
+import { Camera } from '../models/Camera'
+import { Triangle } from '../models/Triangle'
 
 export class Renderer {
     private canvas: HTMLCanvasElement
@@ -15,17 +17,11 @@ export class Renderer {
     private bindGroup!: GPUBindGroup
     private pipeline!: GPURenderPipeline
 
-    private triangleMesh!: Triangle
+    private triangleMesh!: TriangleMesh
     private material!: Material
-
-    private t: number
-
-    initialized = false
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas
-
-        this.t = 0.0
 
         this.render = this.render.bind(this)
     }
@@ -36,12 +32,6 @@ export class Renderer {
         await this.createAssets()
 
         await this.makePipeline()
-    }
-
-    async destroy() {
-        if (!this.initialized) return
-
-        this.device.destroy()
     }
 
     private async setupDevice() {
@@ -77,13 +67,10 @@ export class Renderer {
     }
 
     private async createAssets() {
-        this.triangleMesh = new Triangle(this.device)
+        this.triangleMesh = new TriangleMesh(this.device)
         this.material = new Material()
 
-        await this.material.initialize(
-            this.device,
-            '/oiia.png',
-        )
+        await this.material.initialize(this.device, '/oiia.png')
     }
 
     private async makePipeline() {
@@ -128,7 +115,7 @@ export class Renderer {
                 {
                     binding: 2,
                     resource: this.material.sampler,
-                }
+                },
             ],
         })
 
@@ -162,18 +149,8 @@ export class Renderer {
         })
     }
 
-    render() {
-        this.t += 0.01
-
-        if (this.t > 2.0 * Math.PI) {
-            this.t -= 2.0 * Math.PI
-        }
-
-        const view = mat4.create()
-        mat4.lookAt(view, [2, 0, 2], [0, 0, 0], [0, 0, 1])
-
-        const model = mat4.create()
-        mat4.rotate(model, model, this.t, [0, 0, 1])
+    async render(camera: Camera, triangles: Triangle[]) {
+        const view = camera.getView()
 
         const projection = mat4.create()
         mat4.perspective(
@@ -184,11 +161,6 @@ export class Renderer {
             100.0,
         )
 
-        this.device.queue.writeBuffer(
-            this.uniformBuffer,
-            64 * 0,
-            <ArrayBuffer>model,
-        )
         this.device.queue.writeBuffer(
             this.uniformBuffer,
             64 * 1,
@@ -213,14 +185,25 @@ export class Renderer {
             ],
         }
         const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor)
+
         passEncoder.setPipeline(this.pipeline)
         passEncoder.setVertexBuffer(0, this.triangleMesh.buffer)
-        passEncoder.setBindGroup(0, this.bindGroup)
-        passEncoder.draw(3)
+
+        triangles.forEach((triangle) => {
+            const model = triangle.getModel()
+
+            this.device.queue.writeBuffer(
+                this.uniformBuffer,
+                0,
+                <ArrayBuffer>model,
+            )
+
+            passEncoder.setBindGroup(0, this.bindGroup)
+            passEncoder.draw(3, 1, 0, 0)
+        })
+
         passEncoder.end()
 
         this.device.queue.submit([commandEncoder.finish()])
-
-        requestAnimationFrame(this.render)
     }
 }
