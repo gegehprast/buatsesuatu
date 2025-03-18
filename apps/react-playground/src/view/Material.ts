@@ -5,7 +5,13 @@ export class Material {
 
     sampler!: GPUSampler
 
-    public async initialize(device: GPUDevice, src: string) {
+    bindGroup!: GPUBindGroup
+
+    public async initialize(
+        device: GPUDevice,
+        src: string,
+        bindGroupLayout: GPUBindGroupLayout,
+    ) {
         const response = await fetch(src)
         const blob = await response.blob()
         const imageData = await createImageBitmap(blob)
@@ -32,8 +38,22 @@ export class Material {
             mipmapFilter: 'nearest',
             maxAnisotropy: 1,
         }
-        
+
         this.sampler = device.createSampler(samplerDescriptor)
+
+        this.bindGroup = device.createBindGroup({
+            layout: bindGroupLayout,
+            entries: [
+                {
+                    binding: 0,
+                    resource: this.view,
+                },
+                {
+                    binding: 1,
+                    resource: this.sampler,
+                },
+            ],
+        })
     }
 
     async loadImage(device: GPUDevice, imageData: ImageBitmap) {
