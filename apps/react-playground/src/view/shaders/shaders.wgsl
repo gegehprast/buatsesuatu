@@ -1,12 +1,16 @@
 struct TransformData {
-    model: mat4x4<f32>,
     view: mat4x4<f32>,
     projection: mat4x4<f32>,
+}
+
+struct ObjectData {
+    model: array<mat4x4<f32>>,
 }
 
 @binding(0) @group(0) var<uniform> transformUBO: TransformData;
 @binding(1) @group(0) var myTexture: texture_2d<f32>;
 @binding(2) @group(0) var mySampler: sampler;
+@binding(3) @group(0) var<storage, read> objects: ObjectData;
 
 struct Fragment {
     @builtin(position) Position: vec4f,
@@ -14,9 +18,13 @@ struct Fragment {
 }
 
 @vertex
-fn vert_main(@location(0) position: vec3f, @location(1) texCoord: vec2f) -> Fragment {
+fn vert_main(
+    @builtin(instance_index) ID: u32,
+    @location(0) position: vec3f,
+    @location(1) texCoord: vec2f
+) -> Fragment {
     var output: Fragment;
-    output.Position = transformUBO.projection * transformUBO.view * transformUBO.model * vec4f(position, 1.0);
+    output.Position = transformUBO.projection * transformUBO.view * objects.model[ID] * vec4f(position, 1.0);
     output.TexCoord = texCoord;
 
     return output;

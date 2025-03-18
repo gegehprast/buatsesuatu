@@ -62,7 +62,6 @@ export class App {
             })
 
             if (event.code === 'KeyW' || event.code === 'KeyS') {
-                console.log('stop f')
                 this.forwardsAmount = 0
             }
 
@@ -101,7 +100,7 @@ export class App {
         this.scene.update()
         this.scene.movePlayer(this.forwardsAmount, this.rightAmount)
 
-        this.renderer.render(this.scene.getPlayer(), this.scene.getTriangles())
+        this.renderer.render(this.scene.getPlayer(), this.scene.getTriangles(), this.scene.triangleCount)
 
         if (running) {
             requestAnimationFrame(this.run)

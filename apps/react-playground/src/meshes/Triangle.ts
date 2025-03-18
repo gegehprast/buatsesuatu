@@ -42,4 +42,11 @@ export class Triangle {
             ],
         }
     }
+
+    getModel() {
+        return {
+            buffer: this.buffer,
+            layout: this.bufferLayout,
+        }
+    }
 }
