@@ -79,8 +79,8 @@ export class App {
                 listener(this.keyCode, [event.clientX, event.clientY])
 
                 this.scene.spinPlayer(
-                    event.movementX * 0.02,
-                    event.movementY * 0.02,
+                    event.movementX * 0.06,
+                    event.movementY * 0.06,
                 )
             })
         })
