@@ -4,6 +4,8 @@ import { Quad as QuadMesh } from '../meshes/Quad'
 import { mat4 } from 'gl-matrix'
 import { Material } from './Material'
 import { OBJECT_TYPES, RenderData } from '../models/definitions'
+import oiia from '@/assets/oiia.png'
+import floor from '@/assets/floor.jpg'
 
 export class Renderer {
     private canvas: HTMLCanvasElement
@@ -170,12 +172,12 @@ export class Renderer {
 
         await this.triangleMaterial.initialize(
             this.device,
-            '/oiia.png',
+            oiia,
             this.materialGroupLayout,
         )
         await this.quadMaterial.initialize(
             this.device,
-            '/floor.png',
+            floor,
             this.materialGroupLayout,
         )
     }
