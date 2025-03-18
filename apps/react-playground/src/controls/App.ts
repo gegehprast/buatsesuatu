@@ -76,7 +76,7 @@ export class App {
 
         this.canvas.addEventListener('mousemove', (event) => {
             if (document.pointerLockElement !== this.canvas) return
-            
+
             this.controlListener.forEach((listener) => {
                 listener(this.keyCode, [event.clientX, event.clientY])
 
@@ -104,6 +104,7 @@ export class App {
         
         this.renderer.render(
             this.scene.getRenderables(),
+            this.scene.getPlayer(),
         )
 
         if (running) {
