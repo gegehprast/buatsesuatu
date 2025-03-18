@@ -16,6 +16,11 @@ export class Renderer {
     private bindGroup!: GPUBindGroup
     private pipeline!: GPURenderPipeline
 
+    depthStencilState!: GPUDepthStencilState
+    depthStencilBuffer!: GPUTexture
+    depthStencilView!: GPUTextureView
+    depthStencilAttachment!: GPURenderPassDepthStencilAttachment
+
     private triangleMesh!: TriangleMesh
     private material!: Material
     private objectBuffer!: GPUBuffer
@@ -30,6 +35,8 @@ export class Renderer {
         await this.setupDevice()
 
         await this.createAssets()
+
+        await this.makeDepthBufferResources()
 
         await this.makePipeline()
     }
@@ -64,6 +71,42 @@ export class Renderer {
             format: this.format,
             alphaMode: 'opaque',
         })
+    }
+
+    private async makeDepthBufferResources() {
+        this.depthStencilState = {
+            format: 'depth24plus-stencil8',
+            depthWriteEnabled: true,
+            depthCompare: 'less-equal',
+        }
+
+        const size: GPUExtent3D = {
+            width: this.canvas.width,
+            height: this.canvas.height,
+            depthOrArrayLayers: 1,
+        }
+        const depthBufferDescriptor: GPUTextureDescriptor = {
+            size,
+            format: 'depth24plus-stencil8',
+            usage: GPUTextureUsage.RENDER_ATTACHMENT,
+        }
+        this.depthStencilBuffer = this.device.createTexture(depthBufferDescriptor)
+
+        const viewDescriptor: GPUTextureViewDescriptor = {
+            format: 'depth24plus-stencil8',
+            dimension: '2d',
+            aspect: 'all',
+        }
+        this.depthStencilView = this.depthStencilBuffer.createView(viewDescriptor)
+
+        this.depthStencilAttachment = {
+            view: this.depthStencilView,
+            depthClearValue: 1.0,
+            depthLoadOp: 'clear',
+            depthStoreOp: 'store',
+            stencilLoadOp: 'clear',
+            stencilStoreOp: 'discard',
+        }
     }
 
     private async createAssets() {
@@ -166,6 +209,7 @@ export class Renderer {
                 topology: 'triangle-list',
             },
             layout: pipelineLayout,
+            depthStencil: this.depthStencilState,
         })
     }
 
@@ -210,6 +254,7 @@ export class Renderer {
                     storeOp: 'store',
                 },
             ],
+            depthStencilAttachment: this.depthStencilAttachment,
         }
         const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor)
 
