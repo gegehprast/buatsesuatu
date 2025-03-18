@@ -4,26 +4,24 @@ import { Triangle } from './Triangle'
 
 export class Scene {
     triangles: Triangle[]
-    
+
     triangleCount: number
-    
+
     player: Camera
-    
+
     objectData: Float32Array
 
     constructor() {
         this.triangles = []
         this.triangleCount = 0
         this.objectData = new Float32Array(16 * 1024)
-        
+
         let i = 0
 
-        for (let y = -5; y < 5; y++) {
+        for (let y = -10; y < 10; y++) {
             this.triangles.push(new Triangle([2, y, 0], 0))
 
             const blankMatrix = mat4.create()
-
-            
 
             for (let j = 0; j < 16; j++) {
                 this.objectData[16 * i + j] = <number>blankMatrix[j]
@@ -41,7 +39,7 @@ export class Scene {
 
         this.triangles.forEach((triangle) => {
             triangle.update()
-            
+
             const model = triangle.getModel()
 
             for (let j = 0; j < 16; j++) {
