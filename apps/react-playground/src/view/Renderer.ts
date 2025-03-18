@@ -416,7 +416,7 @@ export class Renderer {
         )
 
         const dy = Math.tan(Math.PI / 8)
-        const dx = (dy * 800) / 600
+        const dx = (dy * this.canvas.width) / this.canvas.height
 
         this.device.queue.writeBuffer(
             this.parameterBuffer,
@@ -426,10 +426,12 @@ export class Renderer {
                 camera.forwards[1],
                 camera.forwards[2],
                 0.0,
+
                 dx * camera.right[0],
                 dx * camera.right[1],
                 dx * camera.right[2],
                 0.0,
+
                 dy * camera.up[0],
                 dy * camera.up[1],
                 dy * camera.up[2],
