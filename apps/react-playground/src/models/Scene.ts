@@ -23,6 +23,7 @@ export class Scene {
 
         this.makeQuads()
 
+        // why is this position acting weird?
         this.statues = [new Statue([0, 0, 0], [0, 0, 0])]
 
         this.player = new Camera([-2, 0, 0.5], 0, 0)
