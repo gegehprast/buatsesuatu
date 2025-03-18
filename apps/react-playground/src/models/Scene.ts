@@ -3,11 +3,14 @@ import { Camera } from './Camera'
 import { Triangle } from './Triangle'
 import { Quad } from './Quad'
 import { OBJECT_TYPES, RenderData } from './definitions'
+import { Statue } from './Statue'
 
 export class Scene {
     triangles: Triangle[] = []
 
     quads: Quad[] = []
+
+    statues: Statue[] = [];
 
     player: Camera
 
@@ -19,6 +22,8 @@ export class Scene {
         this.makeTriangles()
 
         this.makeQuads()
+
+        this.statues = [new Statue([0, 0, 0], [0, 0, 0])]
 
         this.player = new Camera([-2, 0, 0.5], 0, 0)
     }
@@ -76,6 +81,18 @@ export class Scene {
             quad.update()
 
             const model = quad.getModel()
+
+            for (let j = 0; j < 16; j++) {
+                this.objectData[16 * i + j] = <number>model[j]
+            }
+
+            i++
+        })
+
+        this.statues.forEach((statue) => {
+            statue.update()
+
+            const model = statue.getModel()
 
             for (let j = 0; j < 16; j++) {
                 this.objectData[16 * i + j] = <number>model[j]

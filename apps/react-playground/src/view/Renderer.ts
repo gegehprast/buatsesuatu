@@ -4,8 +4,10 @@ import { Quad as QuadMesh } from '../meshes/Quad'
 import { mat4 } from 'gl-matrix'
 import { Material } from './Material'
 import { OBJECT_TYPES, RenderData } from '../models/definitions'
+import { ObjectMesh } from '../meshes/ObjectMesh'
 import oiia from '@/assets/oiia.png'
 import floor from '@/assets/floor.jpg'
+import statue from '@/assets/statue.obj?raw'
 
 export class Renderer {
     private canvas: HTMLCanvasElement
@@ -28,6 +30,7 @@ export class Renderer {
 
     private triangleMesh!: TriangleMesh
     private quadMesh!: QuadMesh
+    private statueMesh!: ObjectMesh
     private triangleMaterial!: Material
     private quadMaterial!: Material
     private objectBuffer!: GPUBuffer
@@ -159,16 +162,17 @@ export class Renderer {
     }
 
     private async createAssets() {
-        this.triangleMesh = new TriangleMesh(this.device)
-        this.triangleMaterial = new Material()
-        this.quadMesh = new QuadMesh(this.device)
-        this.quadMaterial = new Material()
-
         const modelBufferDescriptor: GPUBufferDescriptor = {
             size: 4 * 16 * 1024,
             usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
         }
         this.objectBuffer = this.device.createBuffer(modelBufferDescriptor)
+
+        this.triangleMesh = new TriangleMesh(this.device)
+        this.triangleMaterial = new Material()
+        this.quadMesh = new QuadMesh(this.device)
+        this.quadMaterial = new Material()
+        this.statueMesh = new ObjectMesh()
 
         await this.triangleMaterial.initialize(
             this.device,
@@ -180,6 +184,7 @@ export class Renderer {
             floor,
             this.materialGroupLayout,
         )
+        await this.statueMesh.initialize(this.device, statue)
     }
 
     private async makePipeline() {
@@ -304,6 +309,16 @@ export class Renderer {
             objectsDrawn,
         )
         objectsDrawn += renderables.object_counts[OBJECT_TYPES.QUAD]
+
+        passEncoder.setVertexBuffer(0, this.statueMesh.buffer)
+        passEncoder.setBindGroup(1, this.triangleMaterial.bindGroup)
+        passEncoder.draw(
+            this.statueMesh.vertexCount,
+            1,
+            0,
+            objectsDrawn,
+        )
+        objectsDrawn += 1
 
         passEncoder.end()
 
