@@ -99,8 +99,10 @@ export class App {
 
         this.scene.update()
         this.scene.movePlayer(this.forwardsAmount, this.rightAmount)
-
-        this.renderer.render(this.scene.getPlayer(), this.scene.getTriangles(), this.scene.triangleCount)
+        
+        this.renderer.render(
+            this.scene.getRenderables(),
+        )
 
         if (running) {
             requestAnimationFrame(this.run)

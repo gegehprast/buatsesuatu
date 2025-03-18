@@ -1,8 +1,9 @@
 import shader from './shaders/shaders.wgsl?raw'
 import { Triangle as TriangleMesh } from '../meshes/Triangle'
+import { Quad as QuadMesh } from '../meshes/Quad'
 import { mat4 } from 'gl-matrix'
 import { Material } from './Material'
-import { Camera } from '../models/Camera'
+import { OBJECT_TYPES, RenderData } from '../models/definitions'
 
 export class Renderer {
     private canvas: HTMLCanvasElement
@@ -13,7 +14,8 @@ export class Renderer {
     private format!: GPUTextureFormat
 
     private uniformBuffer!: GPUBuffer
-    private bindGroup!: GPUBindGroup
+    private triangleBindGroup!: GPUBindGroup
+    private quadBindGroup!: GPUBindGroup
     private pipeline!: GPURenderPipeline
 
     depthStencilState!: GPUDepthStencilState
@@ -22,7 +24,9 @@ export class Renderer {
     depthStencilAttachment!: GPURenderPassDepthStencilAttachment
 
     private triangleMesh!: TriangleMesh
-    private material!: Material
+    private quadMesh!: QuadMesh
+    private triangleMaterial!: Material
+    private quadMaterial!: Material
     private objectBuffer!: GPUBuffer
 
     constructor(canvas: HTMLCanvasElement) {
@@ -111,7 +115,9 @@ export class Renderer {
 
     private async createAssets() {
         this.triangleMesh = new TriangleMesh(this.device)
-        this.material = new Material()
+        this.triangleMaterial = new Material()
+        this.quadMesh = new QuadMesh(this.device)
+        this.quadMaterial = new Material()
 
         const modelBufferDescriptor: GPUBufferDescriptor = {
             size: 4 * 16 * 1024,
@@ -119,7 +125,8 @@ export class Renderer {
         }
         this.objectBuffer = this.device.createBuffer(modelBufferDescriptor)
 
-        await this.material.initialize(this.device, '/oiia.png')
+        await this.triangleMaterial.initialize(this.device, '/oiia.png')
+        await this.quadMaterial.initialize(this.device, '/floor.png')
     }
 
     private async makePipeline() {
@@ -156,7 +163,7 @@ export class Renderer {
             ],
         })
 
-        this.bindGroup = this.device.createBindGroup({
+        this.triangleBindGroup = this.device.createBindGroup({
             layout: bindGroupLayout,
             entries: [
                 {
@@ -167,11 +174,37 @@ export class Renderer {
                 },
                 {
                     binding: 1,
-                    resource: this.material.view,
+                    resource: this.triangleMaterial.view,
                 },
                 {
                     binding: 2,
-                    resource: this.material.sampler,
+                    resource: this.triangleMaterial.sampler,
+                },
+                {
+                    binding: 3,
+                    resource: {
+                        buffer: this.objectBuffer,
+                    },
+                },
+            ],
+        })
+
+        this.quadBindGroup = this.device.createBindGroup({
+            layout: bindGroupLayout,
+            entries: [
+                {
+                    binding: 0,
+                    resource: {
+                        buffer: this.uniformBuffer,
+                    },
+                },
+                {
+                    binding: 1,
+                    resource: this.quadMaterial.view,
+                },
+                {
+                    binding: 2,
+                    resource: this.quadMaterial.sampler,
                 },
                 {
                     binding: 3,
@@ -213,8 +246,8 @@ export class Renderer {
         })
     }
 
-    render(camera: Camera, triangles: Float32Array, triangleCount: number) {
-        const view = camera.getView()
+    render(renderables: RenderData) {
+        const view = renderables.view_transform
 
         const projection = mat4.create()
         mat4.perspective(
@@ -222,15 +255,15 @@ export class Renderer {
             Math.PI / 4,
             this.canvas.width / this.canvas.height,
             0.1,
-            100.0,
+            10.0,
         )
 
         this.device.queue.writeBuffer(
             this.objectBuffer,
             0,
-            triangles,
+            renderables.model_transforms,
             0,
-            triangles.length,
+            renderables.model_transforms.length,
         )
         this.device.queue.writeBuffer(
             this.uniformBuffer,
@@ -249,7 +282,7 @@ export class Renderer {
             colorAttachments: [
                 {
                     view: textureView,
-                    clearValue: { r: 0.5, g: 0.0, b: 0.0, a: 1.0 },
+                    clearValue: { r: 0.67, g: 0.84, b: 0.90, a: 1.0 },
                     loadOp: 'clear',
                     storeOp: 'store',
                 },
@@ -259,9 +292,19 @@ export class Renderer {
         const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor)
 
         passEncoder.setPipeline(this.pipeline)
+
+        let objectsDrawn = 0
+
         passEncoder.setVertexBuffer(0, this.triangleMesh.buffer)
-        passEncoder.setBindGroup(0, this.bindGroup)
-        passEncoder.draw(3, triangleCount, 0, 0)
+        passEncoder.setBindGroup(0, this.triangleBindGroup)
+        passEncoder.draw(3, renderables.object_counts[OBJECT_TYPES.TRIANGLE], 0, objectsDrawn)
+        objectsDrawn += renderables.object_counts[OBJECT_TYPES.TRIANGLE]
+
+        passEncoder.setVertexBuffer(0, this.quadMesh.buffer)
+        passEncoder.setBindGroup(0, this.quadBindGroup)
+        passEncoder.draw(6, renderables.object_counts[OBJECT_TYPES.QUAD], 0, objectsDrawn)
+        objectsDrawn += renderables.object_counts[OBJECT_TYPES.QUAD]
+        
         passEncoder.end()
 
         this.device.queue.submit([commandEncoder.finish()])
