@@ -43,6 +43,7 @@ export const config = [
                     ignoreRestSiblings: true,
                 },
             ],
+            '@typescript-eslint/explicit-member-accessibility': 'error',
         },
     },
 ]
