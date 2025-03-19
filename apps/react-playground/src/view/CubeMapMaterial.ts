@@ -1,9 +1,9 @@
 export class CubeMapMaterial {
-    texture!: GPUTexture
-    view!: GPUTextureView
-    sampler!: GPUSampler
+    private texture!: GPUTexture
+    public view!: GPUTextureView
+    public sampler!: GPUSampler
 
-    async initialize(device: GPUDevice, urls: string[]) {
+    public async initialize(device: GPUDevice, urls: string[]) {
         const imageData: ImageBitmap[] = new Array(6)
 
         for (let i: number = 0; i < 6; i++) {
@@ -35,7 +35,7 @@ export class CubeMapMaterial {
         this.sampler = device.createSampler(samplerDescriptor)
     }
 
-    async loadImageBitmaps(device: GPUDevice, imageData: ImageBitmap[]) {
+    private async loadImageBitmaps(device: GPUDevice, imageData: ImageBitmap[]) {
         const textureDescriptor: GPUTextureDescriptor = {
             dimension: '2d',
             size: {

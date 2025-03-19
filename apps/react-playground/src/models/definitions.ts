@@ -8,6 +8,7 @@ export enum OBJECT_TYPES {
 export enum PIPELINE_TYPES {
     SKY,
     STANDARD,
+    POST
 }
 
 export interface RenderData {

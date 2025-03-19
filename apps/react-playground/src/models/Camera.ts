@@ -2,12 +2,12 @@ import { vec3, mat4 } from 'gl-matrix'
 import { degToRad } from './math'
 
 export class Camera {
-    position: vec3
-    eulers: vec3
-    view: mat4
-    forwards: vec3
-    right: vec3
-    up: vec3
+    public position: vec3
+    public eulers: vec3
+    public view: mat4
+    public forwards: vec3
+    public right: vec3
+    public up: vec3
 
     constructor(position: vec3, theta: number, phi: number) {
         this.position = position
@@ -18,7 +18,7 @@ export class Camera {
         this.up = vec3.create()
     }
 
-    update() {
+    public update() {
         // prettier-ignore
         this.forwards = [
             Math.cos(degToRad(this.eulers[2])) * Math.cos(degToRad(this.eulers[1])),
@@ -37,7 +37,7 @@ export class Camera {
         mat4.lookAt(this.view, this.position, target, this.up)
     }
 
-    getView(): mat4 {
+    public getView(): mat4 {
         return this.view
     }
 }

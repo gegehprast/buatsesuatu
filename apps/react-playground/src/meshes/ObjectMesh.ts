@@ -5,11 +5,11 @@ export class ObjectMesh {
 
     public bufferLayout!: GPUVertexBufferLayout
 
-    v: vec3[]
-    vt: vec2[]
-    vn: vec3[]
-    vertices: Float32Array
-    vertexCount: number
+    private v: vec3[]
+    private vt: vec2[]
+    private vn: vec3[]
+    private vertices: Float32Array
+    public vertexCount: number
 
     constructor() {
         this.v = []
@@ -19,7 +19,7 @@ export class ObjectMesh {
         this.vertexCount = 0
     }
 
-    async initialize(device: GPUDevice, obj: string) {
+    public async initialize(device: GPUDevice, obj: string) {
         await this.readObj(obj)
 
         this.vertexCount = this.vertices.length / 5
@@ -55,7 +55,7 @@ export class ObjectMesh {
         }
     }
 
-    getModel() {
+    public getModel() {
         return {
             buffer: this.buffer,
             layout: this.bufferLayout,
@@ -64,7 +64,7 @@ export class ObjectMesh {
 
     private async readObj(obj: string) {
         const result: number[] = []
-        
+
         const lines = obj.split('\n')
 
         for (const line of lines) {
@@ -111,7 +111,7 @@ export class ObjectMesh {
     private readFace(line: string, result: number[]) {
         line = line.replace('\n', '')
 
-        const vertexDescriptions = line.split(' ') // f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ... 
+        const vertexDescriptions = line.split(' ') // f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
         const triangleCount = vertexDescriptions.length - 3
 
         for (let i = 0; i < triangleCount; i++) {

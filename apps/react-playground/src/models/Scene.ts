@@ -6,15 +6,15 @@ import { OBJECT_TYPES, RenderData } from './definitions'
 import { Statue } from './Statue'
 
 export class Scene {
-    triangles: Triangle[] = []
+    private triangles: Triangle[] = []
 
-    quads: Quad[] = []
+    private quads: Quad[] = []
 
-    statues: Statue[] = [];
+    private statues: Statue[] = []
 
-    player: Camera
+    private player: Camera
 
-    objectData: Float32Array
+    private objectData: Float32Array
 
     constructor() {
         this.objectData = new Float32Array(16 * 1024)
@@ -29,7 +29,7 @@ export class Scene {
         this.player = new Camera([-2, 0, 0.5], 0, 0)
     }
 
-    makeTriangles() {
+    private makeTriangles() {
         let i = 0
 
         for (let y = -10; y <= 10; y++) {
@@ -45,7 +45,7 @@ export class Scene {
         }
     }
 
-    makeQuads() {
+    private makeQuads() {
         let i = this.triangles.length
 
         for (let x = -10; x <= 10; x++) {
@@ -63,7 +63,7 @@ export class Scene {
         }
     }
 
-    update() {
+    public update() {
         let i = 0
 
         this.triangles.forEach((triangle) => {
@@ -105,7 +105,7 @@ export class Scene {
         this.player.update()
     }
 
-    spinPlayer(dX: number, dY: number) {
+    public spinPlayer(dX: number, dY: number) {
         this.player.eulers[2] -= dX
         this.player.eulers[2] %= 360
 
@@ -115,7 +115,7 @@ export class Scene {
         )
     }
 
-    movePlayer(forwardsAmount: number, rightAmount: number) {
+    public movePlayer(forwardsAmount: number, rightAmount: number) {
         vec3.scaleAndAdd(
             this.player.position,
             this.player.position,
@@ -131,11 +131,11 @@ export class Scene {
         )
     }
 
-    getPlayer(): Camera {
+    public getPlayer(): Camera {
         return this.player
     }
 
-    getRenderables(): RenderData {
+    public getRenderables(): RenderData {
         return {
             view_transform: this.player.getView(),
             model_transforms: this.objectData,

@@ -1,11 +1,11 @@
 export class Material {
-    texture!: GPUTexture
+    private texture!: GPUTexture
 
-    view!: GPUTextureView
+    private view!: GPUTextureView
 
-    sampler!: GPUSampler
+    private sampler!: GPUSampler
 
-    bindGroup!: GPUBindGroup
+    public bindGroup!: GPUBindGroup
 
     public async initialize(
         device: GPUDevice,
@@ -56,7 +56,7 @@ export class Material {
         })
     }
 
-    async loadImage(device: GPUDevice, imageData: ImageBitmap) {
+    private async loadImage(device: GPUDevice, imageData: ImageBitmap) {
         const textureDescriptor: GPUTextureDescriptor = {
             size: {
                 width: imageData.width,

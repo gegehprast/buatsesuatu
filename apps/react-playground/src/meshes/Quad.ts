@@ -47,7 +47,7 @@ export class Quad {
         }
     }
 
-    getModel() {
+    public getModel() {
         return {
             buffer: this.buffer,
             layout: this.bufferLayout,

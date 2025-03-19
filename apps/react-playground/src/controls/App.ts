@@ -4,18 +4,19 @@ import { Renderer } from '../view/Renderer'
 type ControlerListener = (keyCode: string | null, mouse: [number, number]) => void
 
 export class App {
-    canvas: HTMLCanvasElement
+    private canvas: HTMLCanvasElement
 
-    renderer: Renderer
+    private renderer: Renderer
 
-    scene: Scene
+    private scene: Scene
 
-    controlListener: ControlerListener[] = []
+    private controlListener: ControlerListener[] = []
 
-    keyCode: string | null = null
+    private keyCode: string | null = null
 
-    forwardsAmount: number = 0
-    rightAmount: number = 0
+    private forwardsAmount: number = 0
+    
+    private rightAmount: number = 0
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas
@@ -27,7 +28,7 @@ export class App {
         this.run = this.run.bind(this)
     }
 
-    async initialize() {
+    public async initialize() {
         await this.renderer.initialize()
 
         window.document.addEventListener('keydown', (event) => {
@@ -88,15 +89,15 @@ export class App {
         })
     }
 
-    observeControl(listener: ControlerListener) {
+    public observeControl(listener: ControlerListener) {
         this.controlListener.push(listener)
     }
 
-    unobserveControl(listener: ControlerListener) {
+    public unobserveControl(listener: ControlerListener) {
         this.controlListener = this.controlListener.filter((l) => l !== listener)
     }
 
-    run() {
+    public run() {
         const running = true
 
         this.scene.update()

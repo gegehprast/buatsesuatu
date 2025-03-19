@@ -2,9 +2,9 @@ import { vec3, mat4 } from 'gl-matrix'
 import { degToRad } from './math'
 
 export class Triangle {
-    position: vec3
-    eulers: vec3
-    model: mat4
+    private position: vec3
+    private eulers: vec3
+    private model: mat4
 
     constructor(position: vec3, theta: number) {
         this.position = position
@@ -13,7 +13,7 @@ export class Triangle {
         this.model = mat4.create()
     }
 
-    update() {
+    public update() {
         this.eulers[2] += 1
         this.eulers[2] %= 360
 
@@ -22,7 +22,7 @@ export class Triangle {
         mat4.rotateZ(this.model, this.model, degToRad(this.eulers[2]))
     }
 
-    getModel(): mat4 {
+    public getModel(): mat4 {
         return this.model
     }
 }
