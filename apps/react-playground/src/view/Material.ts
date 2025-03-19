@@ -9,21 +9,59 @@ export class Material {
 
     public async initialize(
         device: GPUDevice,
-        src: string,
+        name: string,
+        ext: 'jpg' | 'png' | 'jpeg' | 'webp',
+        mipLevels: number,
         bindGroupLayout: GPUBindGroupLayout,
     ) {
-        const response = await fetch(src)
-        const blob = await response.blob()
-        const imageData = await createImageBitmap(blob)
+        const imageBitmaps: ImageBitmap[] = []
+        let highestWidth = 0
+        let highestHeight = 0
 
-        await this.loadImage(device, imageData)
+        for (let i = 0; i < mipLevels; i++) {
+            const imageUrl = new URL(
+                `../assets/${name}/${name}${i}.${ext}`,
+                import.meta.url,
+            )
+            const response = await fetch(imageUrl)
+            const blob = await response.blob()
+            const imageBitmap = await createImageBitmap(blob)
+
+            if (i === 0) {
+                highestWidth = imageBitmap.width
+                highestHeight = imageBitmap.height
+            }
+
+            imageBitmaps.push(imageBitmap)
+        }
+
+        const textureDescriptor: GPUTextureDescriptor = {
+            size: {
+                width: highestWidth,
+                height: highestHeight,
+            },
+            format: navigator.gpu.getPreferredCanvasFormat(),
+            usage:
+                GPUTextureUsage.TEXTURE_BINDING |
+                GPUTextureUsage.COPY_DST |
+                GPUTextureUsage.RENDER_ATTACHMENT,
+            mipLevelCount: mipLevels,
+        }
+
+        this.texture = device.createTexture(textureDescriptor)
+
+        for (const [i, imageBitmap] of imageBitmaps.entries()) {
+            await this.loadImageBitmap(device, imageBitmap, i)
+
+            imageBitmap.close()
+        }
 
         const viewDescriptor: GPUTextureViewDescriptor = {
             format: navigator.gpu.getPreferredCanvasFormat(),
             dimension: '2d',
             aspect: 'all',
             baseMipLevel: 0,
-            mipLevelCount: 1,
+            mipLevelCount: mipLevels,
             baseArrayLayer: 0,
             arrayLayerCount: 1,
         }
@@ -34,9 +72,9 @@ export class Material {
             addressModeU: 'repeat',
             addressModeV: 'repeat',
             magFilter: 'linear',
-            minFilter: 'nearest',
-            mipmapFilter: 'nearest',
-            maxAnisotropy: 1,
+            minFilter: 'linear',
+            mipmapFilter: 'linear',
+            maxAnisotropy: 4,
         }
 
         this.sampler = device.createSampler(samplerDescriptor)
@@ -56,25 +94,18 @@ export class Material {
         })
     }
 
-    private async loadImage(device: GPUDevice, imageData: ImageBitmap) {
-        const textureDescriptor: GPUTextureDescriptor = {
-            size: {
+    private async loadImageBitmap(
+        device: GPUDevice,
+        imageData: ImageBitmap,
+        mipLevel: number,
+    ) {
+        device.queue.copyExternalImageToTexture(
+            { source: imageData },
+            { texture: this.texture, mipLevel: mipLevel },
+            {
                 width: imageData.width,
                 height: imageData.height,
             },
-            format: navigator.gpu.getPreferredCanvasFormat(),
-            usage:
-                GPUTextureUsage.TEXTURE_BINDING |
-                GPUTextureUsage.COPY_DST |
-                GPUTextureUsage.RENDER_ATTACHMENT,
-        }
-
-        this.texture = device.createTexture(textureDescriptor)
-
-        device.queue.copyExternalImageToTexture(
-            { source: imageData },
-            { texture: this.texture },
-            textureDescriptor.size,
         )
     }
 }

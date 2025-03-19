@@ -6,8 +6,6 @@ import { mat4 } from 'gl-matrix'
 import { Material } from './Material'
 import { OBJECT_TYPES, PIPELINE_TYPES, RenderData } from '../models/definitions'
 import { ObjectMesh } from '../meshes/ObjectMesh'
-import oiia from '@/assets/oiia.png'
-import floor from '@/assets/floor.jpg'
 import sky_back from '@/assets/sky_back.png'
 import sky_front from '@/assets/sky_front.png'
 import sky_left from '@/assets/sky_left.png'
@@ -213,13 +211,17 @@ export class Renderer {
 
         await this.triangleMaterial.initialize(
             this.device,
-            oiia,
+            'oiia',
+            'png',
+            6,
             this.materialGroupLayout,
         )
 
         await this.quadMaterial.initialize(
             this.device,
-            floor,
+            'floor',
+            'png',
+            6,
             this.materialGroupLayout,
         )
 
