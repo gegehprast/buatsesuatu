@@ -23,7 +23,7 @@ fn vert_main(
 
     var pos = positions[vertexIndex];
     output.Position = vec4f(pos, 0.0, 1.0);
-    output.TexCoord = vec2f(0.5, -0.5) * (pos + vec2f(1.0));
+    output.TexCoord = (pos + vec2f(1.0)) * vec2f(0.5, -0.5);
 
     return output;
 }
