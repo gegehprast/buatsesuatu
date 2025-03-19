@@ -1,3 +1,5 @@
+import { BindGroupBuilder } from "./BindGroupBuilder"
+
 export class Material {
     private texture!: GPUTexture
 
@@ -79,19 +81,10 @@ export class Material {
 
         this.sampler = device.createSampler(samplerDescriptor)
 
-        this.bindGroup = device.createBindGroup({
-            layout: bindGroupLayout,
-            entries: [
-                {
-                    binding: 0,
-                    resource: this.view,
-                },
-                {
-                    binding: 1,
-                    resource: this.sampler,
-                },
-            ],
-        })
+        const builder = new BindGroupBuilder(device)
+        builder.setLayout(bindGroupLayout)
+        builder.addMaterial(this.view, this.sampler)
+        this.bindGroup = builder.build()
     }
 
     private async loadImageBitmap(

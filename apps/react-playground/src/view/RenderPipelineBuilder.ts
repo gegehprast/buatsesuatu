@@ -15,6 +15,7 @@ export class RenderPipelineBuilder {
     private reset() {
         this.bindGroupLayouts = []
         this.buffers = []
+        this.colorTargetStates = []
     }
 
     public async addBindGroupLayout(layout: GPUBindGroupLayout) {
