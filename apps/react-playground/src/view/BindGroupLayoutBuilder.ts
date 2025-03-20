@@ -11,7 +11,7 @@ export class BindGroupLayoutBuilder {
         this.bindGroupLayoutEntries = []
         this.binding = 0
     }
-    
+
     public addBuffer(visibility: GPUFlagsConstant, type: GPUBufferBindingType) {
         this.bindGroupLayoutEntries.push({
             binding: this.binding,
@@ -23,8 +23,12 @@ export class BindGroupLayoutBuilder {
         })
         this.binding += 1
     }
-    
-    public addMaterial(visibility: GPUFlagsConstant, type: GPUTextureViewDimension) {
+
+    public addMaterial(
+        visibility: GPUFlagsConstant,
+        type: GPUTextureViewDimension,
+        samplerType?: GPUSamplerBindingType,
+    ) {
         this.bindGroupLayoutEntries.push({
             binding: this.binding,
             visibility: visibility,
@@ -37,19 +41,22 @@ export class BindGroupLayoutBuilder {
         this.bindGroupLayoutEntries.push({
             binding: this.binding,
             visibility: visibility,
-            sampler: {},
+            sampler: {
+                type: samplerType,
+            },
         })
         this.binding += 1
     }
 
     /**
      * Will reset the builder after building the bind group layout
-     * 
-     * @returns 
+     *
+     * @returns
      */
-    public build(): GPUBindGroupLayout {
+    public build(label: string): GPUBindGroupLayout {
         const layout: GPUBindGroupLayout = this.device.createBindGroupLayout({
             entries: this.bindGroupLayoutEntries,
+            label: label,
         })
         this.reset()
         return layout

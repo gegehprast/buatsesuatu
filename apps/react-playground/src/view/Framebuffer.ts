@@ -14,25 +14,21 @@ export class Framebuffer {
         canvas: HTMLCanvasElement,
         bindGroupLayout: GPUBindGroupLayout,
         format: GPUTextureFormat,
+        timeBuffer: GPUBuffer,
     ) {
-        const width = canvas.width
-        const height = canvas.height
-
-        const textureDescriptor: GPUTextureDescriptor = {
+        this.texture = device.createTexture({
             size: {
-                width: width,
-                height: height,
+                width: canvas.width,
+                height: canvas.height,
             },
             format: format,
             usage:
                 GPUTextureUsage.TEXTURE_BINDING |
                 GPUTextureUsage.RENDER_ATTACHMENT,
             mipLevelCount: 1,
-        }
+        })
 
-        this.texture = device.createTexture(textureDescriptor)
-
-        const viewDescriptor: GPUTextureViewDescriptor = {
+        this.view = this.texture.createView({
             format: format,
             dimension: '2d',
             aspect: 'all',
@@ -40,24 +36,21 @@ export class Framebuffer {
             mipLevelCount: 1,
             baseArrayLayer: 0,
             arrayLayerCount: 1,
-        }
+        })
 
-        this.view = this.texture.createView(viewDescriptor)
-
-        const samplerDescriptor: GPUSamplerDescriptor = {
+        this.sampler = device.createSampler({
             addressModeU: 'repeat',
             addressModeV: 'repeat',
             magFilter: 'linear',
             minFilter: 'linear',
             mipmapFilter: 'linear',
             maxAnisotropy: 1,
-        }
-
-        this.sampler = device.createSampler(samplerDescriptor)
+        })
 
         const builder = new BindGroupBuilder(device)
         builder.setLayout(bindGroupLayout)
         builder.addMaterial(this.view, this.sampler)
-        this.bindGroup = builder.build()
+        builder.addBuffer(timeBuffer)
+        this.bindGroup = builder.build('bg-framebuffer')
     }
 }

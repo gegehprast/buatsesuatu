@@ -84,7 +84,7 @@ export class Material {
         const builder = new BindGroupBuilder(device)
         builder.setLayout(bindGroupLayout)
         builder.addMaterial(this.view, this.sampler)
-        this.bindGroup = builder.build()
+        this.bindGroup = builder.build('bg-material')
     }
 
     private async loadImageBitmap(

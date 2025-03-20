@@ -46,7 +46,7 @@ export class BindGroupBuilder {
      *
      * @returns
      */
-    public build(): GPUBindGroup {
+    public build(label: string): GPUBindGroup {
         if (!this.layout) {
             throw new Error('Layout not set')
         }
@@ -54,6 +54,7 @@ export class BindGroupBuilder {
         const bindGroup = this.device.createBindGroup({
             layout: this.layout,
             entries: this.entries,
+            label: label,
         })
 
         this.reset()

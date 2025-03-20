@@ -16,6 +16,7 @@ export class RenderPipelineBuilder {
         this.bindGroupLayouts = []
         this.buffers = []
         this.colorTargetStates = []
+        this.depthStencilState = undefined
     }
 
     public async addBindGroupLayout(layout: GPUBindGroupLayout) {
@@ -53,7 +54,7 @@ export class RenderPipelineBuilder {
      *
      * @returns
      */
-    public build(): GPURenderPipeline {
+    public build(label: string): GPURenderPipeline {
         if (!this.src_code || !this.vertex_entry || !this.fragment_entry) {
             throw new Error(
                 'Source code, vertex entry, and fragment entry are required',
@@ -87,6 +88,7 @@ export class RenderPipelineBuilder {
 
             layout: layout,
             depthStencil: this.depthStencilState,
+            label: label,
         })
 
         this.reset()
