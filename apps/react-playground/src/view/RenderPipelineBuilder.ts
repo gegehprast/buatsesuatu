@@ -7,6 +7,7 @@ export class RenderPipelineBuilder {
     private vertex_entry?: string
     private fragment_entry?: string
     private depthStencilState?: GPUDepthStencilState
+    private alphaBlend: boolean = false
 
     constructor(device: GPUDevice) {
         this.device = device
@@ -17,6 +18,7 @@ export class RenderPipelineBuilder {
         this.buffers = []
         this.colorTargetStates = []
         this.depthStencilState = undefined
+        this.alphaBlend = false
     }
 
     public async addBindGroupLayout(layout: GPUBindGroupLayout) {
@@ -39,10 +41,31 @@ export class RenderPipelineBuilder {
         this.buffers.push(vertexBufferLayout)
     }
 
-    public addColorFormat(format: GPUTextureFormat) {
-        this.colorTargetStates.push({
+    public setBlendState(blend: boolean) {
+        this.alphaBlend = blend
+    }
+
+    public addRenderTarget(format: GPUTextureFormat) {
+        const target: GPUColorTargetState = {
             format: format,
-        })
+        }
+
+        if (this.alphaBlend) {
+            target.blend = {
+                color: {
+                    operation: 'add',
+                    srcFactor: 'src-alpha',
+                    dstFactor: 'one-minus-src-alpha',
+                },
+                alpha: {
+                    operation: 'add',
+                    srcFactor: 'one',
+                    dstFactor: 'zero',
+                },
+            }
+        }
+
+        this.colorTargetStates.push(target)
     }
 
     public setDepthStencilState(depthStencil: GPUDepthStencilState) {
@@ -63,6 +86,7 @@ export class RenderPipelineBuilder {
 
         const layout = this.device.createPipelineLayout({
             bindGroupLayouts: this.bindGroupLayouts,
+            label: label,
         })
 
         const pipeline = this.device.createRenderPipeline({

@@ -15,6 +15,7 @@ export class Material {
         ext: 'jpg' | 'png' | 'jpeg' | 'webp',
         mipLevels: number,
         bindGroupLayout: GPUBindGroupLayout,
+        bindGroupLabel: string,
     ) {
         const imageBitmaps: ImageBitmap[] = []
         let highestWidth = 0
@@ -84,7 +85,7 @@ export class Material {
         const builder = new BindGroupBuilder(device)
         builder.setLayout(bindGroupLayout)
         builder.addMaterial(this.view, this.sampler)
-        this.bindGroup = builder.build('bg-material')
+        this.bindGroup = builder.build(bindGroupLabel)
     }
 
     private async loadImageBitmap(

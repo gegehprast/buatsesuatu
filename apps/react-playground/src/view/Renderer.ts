@@ -1,6 +1,7 @@
 import shader from './shaders/shaders.wgsl?raw'
 import sky_shader from './shaders/sky_shader.wgsl?raw'
 import post_shader from './shaders/post.wgsl?raw'
+import screen_shader from './shaders/screen.wgsl?raw'
 import { Triangle as TriangleMesh } from '../meshes/Triangle'
 import { Quad as QuadMesh } from '../meshes/Quad'
 import { mat4 } from 'gl-matrix'
@@ -52,6 +53,7 @@ export class Renderer {
     private triangleMaterial!: Material
     private quadMaterial!: Material
     private skyMaterial!: CubeMapMaterial
+    private hudMaterial!: Material
 
     private framebuffer: Framebuffer
 
@@ -69,18 +71,21 @@ export class Renderer {
             [PIPELINE_TYPES.SKY]: null,
             [PIPELINE_TYPES.STANDARD]: null,
             [PIPELINE_TYPES.POST]: null,
+            [PIPELINE_TYPES.HUD]: null,
         }
 
         this.frameBindGroups = {
             [PIPELINE_TYPES.SKY]: null,
             [PIPELINE_TYPES.STANDARD]: null,
             [PIPELINE_TYPES.POST]: null,
+            [PIPELINE_TYPES.HUD]: null,
         }
 
         this.frameGroupLayouts = {
             [PIPELINE_TYPES.SKY]: null,
             [PIPELINE_TYPES.STANDARD]: null,
             [PIPELINE_TYPES.POST]: null,
+            [PIPELINE_TYPES.HUD]: null,
         }
 
         this.framebuffer = new Framebuffer()
@@ -137,18 +142,19 @@ export class Renderer {
 
         builder.addBuffer(GPUShaderStage.VERTEX, 'uniform')
         builder.addMaterial(GPUShaderStage.FRAGMENT, 'cube')
-        this.frameGroupLayouts[PIPELINE_TYPES.SKY] = builder.build('sky')
+        this.frameGroupLayouts[PIPELINE_TYPES.SKY] = builder.build('bgl-sky')
 
         builder.addBuffer(GPUShaderStage.VERTEX, 'uniform')
         builder.addBuffer(GPUShaderStage.VERTEX, 'read-only-storage')
-        this.frameGroupLayouts[PIPELINE_TYPES.STANDARD] = builder.build('standard')
+        this.frameGroupLayouts[PIPELINE_TYPES.STANDARD] =
+            builder.build('bgl-standard')
 
         builder.addMaterial(GPUShaderStage.FRAGMENT, '2d', 'filtering')
         builder.addBuffer(GPUShaderStage.FRAGMENT, 'uniform')
-        this.frameGroupLayouts[PIPELINE_TYPES.POST] = builder.build('post')
+        this.frameGroupLayouts[PIPELINE_TYPES.POST] = builder.build('bgl-post')
 
         builder.addMaterial(GPUShaderStage.FRAGMENT, '2d')
-        this.materialGroupLayout = builder.build('material')
+        this.materialGroupLayout = builder.build('bgl-material')
     }
 
     private async makeDepthBufferResources() {
@@ -226,28 +232,30 @@ export class Renderer {
         this.statueMesh = new ObjectMesh()
         this.skyMaterial = new CubeMapMaterial()
 
-        // triangles
+        // triangle materials
         await this.triangleMaterial.initialize(
             this.device,
             'oiia',
             'png',
             6,
             this.materialGroupLayout,
+            'bg-triangles',
         )
 
-        // floor
+        // floor material
         await this.quadMaterial.initialize(
             this.device,
             'floor',
             'png',
             6,
             this.materialGroupLayout,
+            'bg-floor',
         )
 
-        // statue
+        // statue mesh
         await this.statueMesh.initialize(this.device, statue)
 
-        // sky box
+        // sky box material
         const urls = [
             sky_back, //x+
             sky_front, //x-
@@ -266,6 +274,17 @@ export class Renderer {
             this.format,
             this.timeBuffer,
         )
+
+        // HUD material
+        this.hudMaterial = new Material()
+        await this.hudMaterial.initialize(
+            this.device,
+            'hud',
+            'png',
+            1,
+            this.materialGroupLayout,
+            'bg-hud',
+        )
     }
 
     private makePipelines() {
@@ -278,9 +297,9 @@ export class Renderer {
             this.frameGroupLayouts[PIPELINE_TYPES.SKY] as GPUBindGroupLayout,
         )
         builder.setSourceCode(sky_shader, 'sky_vert_main', 'sky_frag_main')
-        builder.addColorFormat(this.format)
+        builder.addRenderTarget(this.format)
         builder.setDepthStencilState(this.depthStencilState)
-        this.pipelines[PIPELINE_TYPES.SKY] = builder.build('sky')
+        this.pipelines[PIPELINE_TYPES.SKY] = builder.build('pl-sky')
 
         // standard
         builder.addBindGroupLayout(
@@ -291,17 +310,24 @@ export class Renderer {
         builder.addBindGroupLayout(this.materialGroupLayout)
         builder.setSourceCode(shader, 'vert_main', 'frag_main')
         builder.addVertexBufferDescription(this.triangleMesh.bufferLayout)
-        builder.addColorFormat(this.format)
+        builder.addRenderTarget(this.format)
         builder.setDepthStencilState(this.depthStencilState)
-        this.pipelines[PIPELINE_TYPES.STANDARD] = builder.build('standard')
+        this.pipelines[PIPELINE_TYPES.STANDARD] = builder.build('pl-standard')
 
         // post processing
         builder.addBindGroupLayout(
             this.frameGroupLayouts[PIPELINE_TYPES.POST] as GPUBindGroupLayout,
         )
         builder.setSourceCode(post_shader, 'vert_main', 'frag_main')
-        builder.addColorFormat(this.format)
-        this.pipelines[PIPELINE_TYPES.POST] = builder.build('post')
+        builder.addRenderTarget(this.format)
+        this.pipelines[PIPELINE_TYPES.POST] = builder.build('pl-post')
+
+        // HUD
+        builder.addBindGroupLayout(this.materialGroupLayout)
+        builder.setSourceCode(screen_shader, 'vert_main', 'frag_main')
+        builder.setBlendState(true)
+        builder.addRenderTarget(this.format)
+        this.pipelines[PIPELINE_TYPES.HUD] = builder.build('pl-hud')
     }
 
     private async makeBindGroups() {
@@ -314,7 +340,8 @@ export class Renderer {
         )
         builder.addBuffer(this.uniformBuffer)
         builder.addBuffer(this.objectBuffer)
-        this.frameBindGroups[PIPELINE_TYPES.STANDARD] = builder.build('bg-standard')
+        this.frameBindGroups[PIPELINE_TYPES.STANDARD] =
+            builder.build('bg-standard')
 
         builder.setLayout(
             this.frameGroupLayouts[PIPELINE_TYPES.SKY] as GPUBindGroupLayout,
@@ -451,7 +478,7 @@ export class Renderer {
         passEncoder.end()
     }
 
-    public postProcessing(commandEncoder: GPUCommandEncoder) {
+    public drawScreen(commandEncoder: GPUCommandEncoder) {
         const textureView = this.context.getCurrentTexture().createView({
             label: 'textureView',
         })
@@ -463,13 +490,21 @@ export class Renderer {
                     storeOp: 'store',
                 },
             ],
-            label: 'postProcessing',
+            label: 'drawScreen',
         })
 
+        // post processing
         passEncoder.setPipeline(
             this.pipelines[PIPELINE_TYPES.POST] as GPURenderPipeline,
         )
         passEncoder.setBindGroup(0, this.framebuffer.bindGroup)
+        passEncoder.draw(6, 1, 0, 0)
+
+        // HUD
+        passEncoder.setPipeline(
+            this.pipelines[PIPELINE_TYPES.HUD] as GPURenderPipeline,
+        )
+        passEncoder.setBindGroup(0, this.hudMaterial.bindGroup)
         passEncoder.draw(6, 1, 0, 0)
 
         passEncoder.end()
@@ -488,7 +523,7 @@ export class Renderer {
 
         this.drawWorld(renderables, camera, commandEncoder)
 
-        this.postProcessing(commandEncoder)
+        this.drawScreen(commandEncoder)
 
         this.device.queue.submit([commandEncoder.finish()])
     }
