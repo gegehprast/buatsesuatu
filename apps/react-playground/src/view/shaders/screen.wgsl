@@ -23,12 +23,20 @@ fn vert_main(
 
     var pos = positions[vertexIndex];
     output.Position = vec4f(pos, 0.0, 1.0);
-    output.TexCoord = (pos + vec2f(1.0)) * vec2f(0.5, -0.5);
+    output.TexCoord = pos;
 
     return output;
 }
 
 @fragment
 fn frag_main(@location(0) texCoord: vec2f) -> @location(0) vec4f {
-    return textureSample(myTexture, mySampler, texCoord);
+    var pos = vec2f(texCoord.x, 0.85 * (texCoord.y + 0.25 * sin(texCoord.y) * cos(texCoord.x)));
+
+    if (pos.y < - 1.0 || pos.y > 1.0) {
+        discard;
+    }
+
+    pos = (pos + vec2f(1.0)) * vec2f(0.5, -0.5);
+
+    return textureSample(myTexture, mySampler, pos);
 }
