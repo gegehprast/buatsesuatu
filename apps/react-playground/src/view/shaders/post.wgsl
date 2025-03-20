@@ -17,7 +17,7 @@ struct Uniforms {
 fn vert_main(
     @builtin(vertex_index) vertexIndex: u32
 ) -> Fragment {
-    var positions = array<vec2f, 6>(
+    let positions = array<vec2f, 6>(
         vec2f(1.0, 1.0), // Top-right vertex
         vec2f(1.0, -1.0), // Bottom-right vertex
         vec2f(-1.0, -1.0), // Bottom-left vertex
