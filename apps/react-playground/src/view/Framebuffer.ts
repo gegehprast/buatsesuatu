@@ -1,11 +1,7 @@
 import { BindGroupBuilder } from "./BindGroupBuilder"
 
 export class Framebuffer {
-    private texture!: GPUTexture
-
     public view!: GPUTextureView
-
-    private sampler!: GPUSampler
 
     public bindGroup!: GPUBindGroup
 
@@ -16,7 +12,7 @@ export class Framebuffer {
         format: GPUTextureFormat,
         timeBuffer: GPUBuffer,
     ) {
-        this.texture = device.createTexture({
+        const texture = device.createTexture({
             size: {
                 width: canvas.width,
                 height: canvas.height,
@@ -28,7 +24,7 @@ export class Framebuffer {
             mipLevelCount: 1,
         })
 
-        this.view = this.texture.createView({
+        this.view = texture.createView({
             format: format,
             dimension: '2d',
             aspect: 'all',
@@ -38,7 +34,7 @@ export class Framebuffer {
             arrayLayerCount: 1,
         })
 
-        this.sampler = device.createSampler({
+        const sampler = device.createSampler({
             addressModeU: 'repeat',
             addressModeV: 'repeat',
             magFilter: 'linear',
@@ -49,7 +45,7 @@ export class Framebuffer {
 
         const builder = new BindGroupBuilder(device)
         builder.setLayout(bindGroupLayout)
-        builder.addMaterial(this.view, this.sampler)
+        builder.addMaterial(this.view, sampler)
         builder.addBuffer(timeBuffer)
         this.bindGroup = builder.build('bg-framebuffer')
     }
