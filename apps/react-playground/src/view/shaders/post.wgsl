@@ -9,9 +9,10 @@ struct Uniforms {
     time: f32,
 }
 
-@binding(0) @group(0) var myTexture: texture_2d<f32>;
-@binding(1) @group(0) var mySampler: sampler;
-@binding(2) @group(0) var<uniform> uniforms: Uniforms;
+@binding(0) @group(0) var<uniform> vertexUniforms: Uniforms;
+@binding(1) @group(0) var<uniform> fragmentUniforms: Uniforms;
+@binding(2) @group(0) var myTexture: texture_2d<f32>;
+@binding(3) @group(0) var mySampler: sampler;
 
 @vertex
 fn vert_main(
@@ -38,17 +39,24 @@ fn vert_main(
 @fragment
 fn frag_main(@location(0) texCoord: vec2f) -> @location(0) vec4f {
     let frequency = 10.0;
-    let amplitude = 0.04;
-    let speed = 2.0;
-
-    let distortionX = sin(texCoord.y * frequency + uniforms.time * speed) * amplitude;
-    let distortionY = sin(texCoord.x * frequency + uniforms.time * speed) * amplitude;
+    let amplitude = 0.01;
+    let speed = 5.0;
+    
+    let distortionX = sin(texCoord.y * frequency + fragmentUniforms.time * speed) * amplitude;
+    let distortionY = sin(texCoord.x * frequency + fragmentUniforms.time * speed) * amplitude;
     
     // Sample texture with both versions
     let distortedUV = vec2f(texCoord.x + distortionX, texCoord.y + distortionY);
 
     let color = textureSample(myTexture, mySampler, distortedUV);
+
+    if (color.a < 0.1) {
+        discard;
+    }
+
     var intensity = (1.0 / 2.0) * (color.r + color.g + color.b);
     var redTint = vec3f(237.0 / 255.0, 52.0 / 255.0, 24.0 / 255.0);
-    return vec4f(intensity * redTint, 1.0);
+    // return vec4f(intensity * redTint, 1.0);
+
+    return color;
 }

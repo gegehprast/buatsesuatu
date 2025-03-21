@@ -9,7 +9,8 @@ export enum PIPELINE_TYPES {
     SKY,
     STANDARD,
     POST,
-    HUD
+    HUD,
+    GUN
 }
 
 export interface RenderData {

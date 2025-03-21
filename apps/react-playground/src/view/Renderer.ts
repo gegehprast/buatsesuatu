@@ -2,9 +2,10 @@ import shader from './shaders/shaders.wgsl?raw'
 import sky_shader from './shaders/sky_shader.wgsl?raw'
 import post_shader from './shaders/post.wgsl?raw'
 import screen_shader from './shaders/screen.wgsl?raw'
+import gun_shader from './shaders/gun.wgsl?raw'
 import { Triangle as TriangleMesh } from '../meshes/Triangle'
 import { Quad as QuadMesh } from '../meshes/Quad'
-import { mat4 } from 'gl-matrix'
+import { mat4, vec3 } from 'gl-matrix'
 import { Material } from './Material'
 import { OBJECT_TYPES, PIPELINE_TYPES, RenderData } from '../models/definitions'
 import { ObjectMesh } from '../meshes/ObjectMesh'
@@ -15,12 +16,14 @@ import sky_right from '@/assets/sky_right.png'
 import sky_top from '@/assets/sky_top.png'
 import sky_bottom from '@/assets/sky_bottom.png'
 import statue from '@/assets/statue.obj?raw'
+import gun from '@/assets/gun.obj?raw'
 import { CubeMapMaterial } from './CubeMapMaterial'
 import { Camera } from '../models/Camera'
 import { BindGroupLayoutBuilder } from './BindGroupLayoutBuilder'
 import { RenderPipelineBuilder } from './RenderPipelineBuilder'
 import { BindGroupBuilder } from './BindGroupBuilder'
 import { Framebuffer } from './Framebuffer'
+import { degToRad } from '../models/math'
 
 export class Renderer {
     private canvas: HTMLCanvasElement
@@ -42,11 +45,6 @@ export class Renderer {
         [pipeline in PIPELINE_TYPES]: GPUBindGroup | null
     }
 
-    private depthStencilState!: GPUDepthStencilState
-    private depthStencilBuffer!: GPUTexture
-    private depthStencilView!: GPUTextureView
-    private depthStencilAttachment!: GPURenderPassDepthStencilAttachment
-
     private triangleMesh!: TriangleMesh
     private quadMesh!: QuadMesh
     private statueMesh!: ObjectMesh
@@ -56,6 +54,9 @@ export class Renderer {
     private hudMaterial!: Material
 
     private framebuffer: Framebuffer
+    private gunFrameBuffer: Framebuffer
+    private gunMesh!: ObjectMesh
+    private gunMaterial!: Material
 
     private timeBuffer!: GPUBuffer
 
@@ -72,6 +73,7 @@ export class Renderer {
             [PIPELINE_TYPES.STANDARD]: null,
             [PIPELINE_TYPES.POST]: null,
             [PIPELINE_TYPES.HUD]: null,
+            [PIPELINE_TYPES.GUN]: null,
         }
 
         this.frameBindGroups = {
@@ -79,6 +81,7 @@ export class Renderer {
             [PIPELINE_TYPES.STANDARD]: null,
             [PIPELINE_TYPES.POST]: null,
             [PIPELINE_TYPES.HUD]: null,
+            [PIPELINE_TYPES.GUN]: null,
         }
 
         this.frameGroupLayouts = {
@@ -86,9 +89,11 @@ export class Renderer {
             [PIPELINE_TYPES.STANDARD]: null,
             [PIPELINE_TYPES.POST]: null,
             [PIPELINE_TYPES.HUD]: null,
+            [PIPELINE_TYPES.GUN]: null,
         }
 
-        this.framebuffer = new Framebuffer()
+        this.framebuffer = new Framebuffer('World Layer')
+        this.gunFrameBuffer = new Framebuffer('Gun Layer')
 
         this.render = this.render.bind(this)
     }
@@ -99,8 +104,6 @@ export class Renderer {
         this.makeBindGroupLayouts()
 
         await this.createAssets()
-
-        await this.makeDepthBufferResources()
 
         this.makePipelines()
 
@@ -149,51 +152,19 @@ export class Renderer {
         this.frameGroupLayouts[PIPELINE_TYPES.STANDARD] =
             builder.build('bgl-standard')
 
-        builder.addMaterial(GPUShaderStage.FRAGMENT, '2d', 'filtering')
+        builder.addBuffer(GPUShaderStage.VERTEX, 'uniform')
         builder.addBuffer(GPUShaderStage.FRAGMENT, 'uniform')
+        builder.addMaterial(GPUShaderStage.FRAGMENT, '2d', 'filtering')
         this.frameGroupLayouts[PIPELINE_TYPES.POST] = builder.build('bgl-post')
 
         builder.addMaterial(GPUShaderStage.FRAGMENT, '2d')
         this.materialGroupLayout = builder.build('bgl-material')
-    }
 
-    private async makeDepthBufferResources() {
-        this.depthStencilState = {
-            format: 'depth24plus-stencil8',
-            depthWriteEnabled: true,
-            depthCompare: 'less-equal',
-        }
+        builder.addMaterial(GPUShaderStage.FRAGMENT, '2d')
+        this.frameGroupLayouts[PIPELINE_TYPES.HUD] = builder.build('bgl-hud')
 
-        const size: GPUExtent3D = {
-            width: this.canvas.width,
-            height: this.canvas.height,
-            depthOrArrayLayers: 1,
-        }
-        const depthBufferDescriptor: GPUTextureDescriptor = {
-            size,
-            format: 'depth24plus-stencil8',
-            usage: GPUTextureUsage.RENDER_ATTACHMENT,
-        }
-        this.depthStencilBuffer = this.device.createTexture(
-            depthBufferDescriptor,
-        )
-
-        const viewDescriptor: GPUTextureViewDescriptor = {
-            format: 'depth24plus-stencil8',
-            dimension: '2d',
-            aspect: 'all',
-        }
-        this.depthStencilView =
-            this.depthStencilBuffer.createView(viewDescriptor)
-
-        this.depthStencilAttachment = {
-            view: this.depthStencilView,
-            depthClearValue: 1.0,
-            depthLoadOp: 'clear',
-            depthStoreOp: 'store',
-            stencilLoadOp: 'clear',
-            stencilStoreOp: 'discard',
-        }
+        builder.addBuffer(GPUShaderStage.VERTEX, 'uniform')
+        this.frameGroupLayouts[PIPELINE_TYPES.GUN] = builder.build('bgl-gun')
     }
 
     private async createAssets() {
@@ -253,7 +224,7 @@ export class Renderer {
         )
 
         // statue mesh
-        await this.statueMesh.initialize(this.device, statue)
+        await this.statueMesh.initialize(this.device, statue, true, true, false, mat4.create())
 
         // sky box material
         const urls = [
@@ -266,12 +237,23 @@ export class Renderer {
         ]
         await this.skyMaterial.initialize(this.device, urls)
 
-        // framebuffer (post processing)
+        // framebuffer (world (post processing))
         await this.framebuffer.initialize(
             this.device,
             this.canvas,
             this.frameGroupLayouts[PIPELINE_TYPES.POST] as GPUBindGroupLayout,
             this.format,
+            true,
+            this.timeBuffer,
+        )
+
+        // framebuffer (gun)
+        await this.gunFrameBuffer.initialize(
+            this.device,
+            this.canvas,
+            this.frameGroupLayouts[PIPELINE_TYPES.POST] as GPUBindGroupLayout,
+            this.format,
+            true,
             this.timeBuffer,
         )
 
@@ -284,6 +266,34 @@ export class Renderer {
             1,
             this.materialGroupLayout,
             'bg-hud',
+        )
+
+        // GUN
+        const rotation = mat4.create()
+        mat4.fromYRotation(rotation, degToRad(180))
+
+        const translate = mat4.create()
+        mat4.fromTranslation(translate, vec3.fromValues(-0.4, -0.9, 2.5))
+
+        const scale = mat4.create()
+        mat4.fromScaling(scale, vec3.fromValues(0.25, 0.25, 0.25))
+
+        const preTransform = mat4.create()
+        mat4.multiply(preTransform, preTransform, rotation)
+        mat4.multiply(preTransform, preTransform, translate)
+        mat4.multiply(preTransform, preTransform, scale)
+
+        this.gunMesh = new ObjectMesh()
+        await this.gunMesh.initialize(this.device, gun, true, true, true, preTransform)
+
+        this.gunMaterial = new Material()
+        await this.gunMaterial.initialize(
+            this.device,
+            'gun',
+            'png',
+            1,
+            this.materialGroupLayout,
+            'bg-gun',
         )
     }
 
@@ -298,7 +308,7 @@ export class Renderer {
         )
         builder.setSourceCode(sky_shader, 'sky_vert_main', 'sky_frag_main')
         builder.addRenderTarget(this.format)
-        builder.setDepthStencilState(this.depthStencilState)
+        builder.setDepthStencilState(this.framebuffer.depthStencilState)
         this.pipelines[PIPELINE_TYPES.SKY] = builder.build('pl-sky')
 
         // standard
@@ -311,7 +321,7 @@ export class Renderer {
         builder.setSourceCode(shader, 'vert_main', 'frag_main')
         builder.addVertexBufferDescription(this.triangleMesh.bufferLayout)
         builder.addRenderTarget(this.format)
-        builder.setDepthStencilState(this.depthStencilState)
+        builder.setDepthStencilState(this.framebuffer.depthStencilState)
         this.pipelines[PIPELINE_TYPES.STANDARD] = builder.build('pl-standard')
 
         // post processing
@@ -323,11 +333,24 @@ export class Renderer {
         this.pipelines[PIPELINE_TYPES.POST] = builder.build('pl-post')
 
         // HUD
-        builder.addBindGroupLayout(this.materialGroupLayout)
+        builder.addBindGroupLayout(
+            this.frameGroupLayouts[PIPELINE_TYPES.HUD] as GPUBindGroupLayout,
+        )
         builder.setSourceCode(screen_shader, 'vert_main', 'frag_main')
         builder.setBlendState(true)
         builder.addRenderTarget(this.format)
         this.pipelines[PIPELINE_TYPES.HUD] = builder.build('pl-hud')
+
+        // gun
+        builder.addBindGroupLayout(
+            this.frameGroupLayouts[PIPELINE_TYPES.GUN] as GPUBindGroupLayout,
+        )
+        builder.addBindGroupLayout(this.materialGroupLayout)
+        builder.setSourceCode(gun_shader, 'vert_main', 'frag_main')
+        builder.addVertexBufferDescription(this.gunMesh.bufferLayout)
+        builder.addRenderTarget(this.format)
+        builder.setDepthStencilState(this.gunFrameBuffer.depthStencilState)
+        this.pipelines[PIPELINE_TYPES.GUN] = builder.build('pl-gun')
     }
 
     private async makeBindGroups() {
@@ -349,9 +372,21 @@ export class Renderer {
         builder.addBuffer(this.parameterBuffer)
         builder.addMaterial(this.skyMaterial.view, this.skyMaterial.sampler)
         this.frameBindGroups[PIPELINE_TYPES.SKY] = builder.build('bg-sky')
+
+        builder.setLayout(
+            this.frameGroupLayouts[PIPELINE_TYPES.GUN] as GPUBindGroupLayout,
+        )
+        builder.addBuffer(this.uniformBuffer)
+        this.frameBindGroups[PIPELINE_TYPES.GUN] = builder.build('bg-gun')
     }
 
     private prepareScene(renderables: RenderData, camera: Camera) {
+        this.device.queue.writeBuffer(
+            this.timeBuffer,
+            0,
+            new Float32Array([performance.now() / 1000]),
+        )
+        
         // 64 bytes of data
         this.device.queue.writeBuffer(
             this.objectBuffer,
@@ -417,17 +452,7 @@ export class Renderer {
     ) {
         this.prepareScene(renderables, camera)
 
-        const passEncoder = commandEncoder.beginRenderPass({
-            colorAttachments: [
-                {
-                    view: this.framebuffer.view,
-                    loadOp: 'clear',
-                    storeOp: 'store',
-                },
-            ],
-            depthStencilAttachment: this.depthStencilAttachment,
-            label: 'drawWorld',
-        })
+        const passEncoder = this.framebuffer.renderTo(commandEncoder)
 
         // sky box
         passEncoder.setPipeline(
@@ -478,6 +503,22 @@ export class Renderer {
         passEncoder.end()
     }
 
+    public drawGun(
+        commandEncoder: GPUCommandEncoder,
+    ) {
+        const passEncoder = this.gunFrameBuffer.renderTo(commandEncoder)
+        
+        passEncoder.setPipeline(
+            this.pipelines[PIPELINE_TYPES.GUN] as GPURenderPipeline,
+        )
+        passEncoder.setBindGroup(0, this.frameBindGroups[PIPELINE_TYPES.GUN])
+        passEncoder.setBindGroup(1, this.gunMaterial.bindGroup)
+        passEncoder.setVertexBuffer(0, this.gunMesh.buffer)
+        passEncoder.draw(this.gunMesh.vertexCount, 1, 0, 0)
+
+        passEncoder.end()
+    }
+
     public drawScreen(commandEncoder: GPUCommandEncoder) {
         const textureView = this.context.getCurrentTexture().createView({
             label: 'textureView',
@@ -488,6 +529,7 @@ export class Renderer {
                     view: textureView,
                     loadOp: 'clear',
                     storeOp: 'store',
+                    clearValue: { r: 0.1, g: 0.2, b: 0.4, a: 1.0 },
                 },
             ],
             label: 'drawScreen',
@@ -497,7 +539,13 @@ export class Renderer {
         passEncoder.setPipeline(
             this.pipelines[PIPELINE_TYPES.POST] as GPURenderPipeline,
         )
-        passEncoder.setBindGroup(0, this.framebuffer.bindGroup)
+        this.framebuffer.readFrom(passEncoder, 0)
+        passEncoder.draw(6, 1, 0, 0)
+
+        passEncoder.setPipeline(
+            this.pipelines[PIPELINE_TYPES.POST] as GPURenderPipeline,
+        )
+        this.gunFrameBuffer.readFrom(passEncoder, 0)
         passEncoder.draw(6, 1, 0, 0)
 
         // HUD
@@ -515,14 +563,8 @@ export class Renderer {
             label: 'render pass',
         })
 
-        this.device.queue.writeBuffer(
-            this.timeBuffer,
-            0,
-            new Float32Array([performance.now() / 1000]),
-        )
-
         this.drawWorld(renderables, camera, commandEncoder)
-
+        this.drawGun(commandEncoder)
         this.drawScreen(commandEncoder)
 
         this.device.queue.submit([commandEncoder.finish()])
