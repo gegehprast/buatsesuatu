@@ -14,14 +14,14 @@ function Canvas() {
     const appRef = useRef<ControlApp>(null)
 
     const [debugs, setDebugs] = useState({
-        keyCode: '',
+        keyCodes: [] as string[],
         mouse: [0, 0] as [number, number],
     })
 
     useEffect(() => {
-        function observeControl(keyCode: string | null, mouse: [number, number]) {
+        function observeControl(keyCodes: string[], mouse: [number, number]) {
             setDebugs({
-                keyCode: keyCode || '',
+                keyCodes: keyCodes,
                 mouse,
             })
         }
@@ -57,16 +57,22 @@ function Canvas() {
         <>
             <canvas ref={canvasRef} width={600} height={400} />
 
-            <Debug keyCode={debugs.keyCode} mouse={debugs.mouse} />
+            <Debug keyCodes={debugs.keyCodes} mouse={debugs.mouse} />
         </>
     )
 }
 
-function Debug({ keyCode, mouse }: { keyCode: string; mouse: [number, number] }) {
+function Debug({
+    keyCodes,
+    mouse,
+}: {
+    keyCodes: string[]
+    mouse: [number, number]
+}) {
     return (
         <div className="p-2">
             <h2 className="font-semibold">
-                Current key: <span>{keyCode}</span>
+                Current keys: {keyCodes.map((keyCode) => keyCode).join(', ')}
             </h2>
             <h2 className="font-semibold">
                 Mouse:{' '}

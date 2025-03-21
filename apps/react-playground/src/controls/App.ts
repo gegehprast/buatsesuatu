@@ -1,7 +1,7 @@
 import { Scene } from '../models/Scene'
 import { Renderer } from '../view/Renderer'
 
-type ControlerListener = (keyCode: string | null, mouse: [number, number]) => void
+type ControlerListener = (keyCodes: string[], mouse: [number, number]) => void
 
 export class App {
     private canvas: HTMLCanvasElement
@@ -12,11 +12,11 @@ export class App {
 
     private controlListener: ControlerListener[] = []
 
-    private keyCode: string | null = null
-
     private forwardsAmount: number = 0
     
     private rightAmount: number = 0
+
+    private pressedKeys: string[] = []
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas
@@ -31,55 +31,61 @@ export class App {
     public async initialize() {
         await this.renderer.initialize()
 
+        this.controlListener.push((keyCodes) => {
+            this.forwardsAmount = 0
+            this.rightAmount = 0
+
+            keyCodes.forEach((keyCode) => {
+                switch (keyCode) {
+                    case 'KeyW':
+                        this.forwardsAmount += 0.02
+                        break
+                    case 'KeyS':
+                        this.forwardsAmount -= 0.02
+                        break
+                    case 'KeyA':
+                        this.rightAmount -= 0.02
+                        break
+                    case 'KeyD':
+                        this.rightAmount += 0.02
+                        break
+                }
+            })
+        })
+
         window.document.addEventListener('keydown', (event) => {
-            this.keyCode = event.code
+            if (document.pointerLockElement !== this.canvas) return
+
+            event.preventDefault()
+
+            if (this.pressedKeys.includes(event.code)) return
+
+            this.pressedKeys.push(event.code)
 
             this.controlListener.forEach((listener) => {
-                listener(this.keyCode, [0, 0])
+                listener(this.pressedKeys, [0, 0])
             })
-
-            if (this.keyCode === 'KeyW') {
-                this.forwardsAmount = 0.02
-            }
-
-            if (this.keyCode === 'KeyS') {
-                this.forwardsAmount = -0.02
-            }
-
-            if (this.keyCode === 'KeyA') {
-                this.rightAmount = -0.02
-            }
-
-            if (this.keyCode === 'KeyD') {
-                this.rightAmount = 0.02
-            }
         })
 
         window.document.addEventListener('keyup', (event) => {
-            this.keyCode = null
+            if (document.pointerLockElement !== this.canvas) return
+            
+            event.preventDefault()
+
+            this.pressedKeys = this.pressedKeys.filter((key) => key !== event.code)
 
             this.controlListener.forEach((listener) => {
-                listener(this.keyCode, [0, 0])
+                listener(this.pressedKeys, [0, 0])
             })
-
-            if (event.code === 'KeyW' || event.code === 'KeyS') {
-                this.forwardsAmount = 0
-            }
-
-            if (event.code === 'KeyA' || event.code === 'KeyD') {
-                this.rightAmount = 0
-            }
         })
 
         this.canvas.addEventListener('click', () => {
             this.canvas.requestPointerLock()
         })
 
-        this.canvas.addEventListener('mousemove', (event) => {
-            if (document.pointerLockElement !== this.canvas) return
-
+        window.document.addEventListener('mousemove', (event) => {
             this.controlListener.forEach((listener) => {
-                listener(this.keyCode, [event.clientX, event.clientY])
+                listener(this.pressedKeys, [event.clientX, event.clientY])
 
                 this.scene.spinPlayer(
                     event.movementX * 0.06,
