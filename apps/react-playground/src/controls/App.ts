@@ -87,6 +87,8 @@ export class App {
             this.controlListener.forEach((listener) => {
                 listener(this.pressedKeys, [event.clientX, event.clientY])
 
+                if (document.pointerLockElement !== this.canvas) return
+
                 this.scene.spinPlayer(
                     event.movementX * 0.06,
                     event.movementY * 0.06,
