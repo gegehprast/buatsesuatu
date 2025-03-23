@@ -1,37 +1,73 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useRef, useState } from 'react'
+import { App as GApp } from './App/App'
 
 function App() {
-    const [count, setCount] = useState(0)
+    return (
+        <div className="p-2 bg-green-500">
+            <Canvas />
+        </div>
+    )
+}
+
+function Canvas() {
+    const canvasRef = useRef<HTMLCanvasElement>(null)
+    const appRef = useRef<GApp>(null)
+
+    const [debugs, setDebugs] = useState({
+        keyCodes: [] as string[],
+        mouse: [0, 0] as [number, number],
+    })
+
+    useEffect(() => {
+        async function main() {
+            if (appRef.current) return
+
+            if (!canvasRef.current) return
+
+            console.log('Initializing renderer...')
+
+            const canvas = canvasRef.current
+
+            appRef.current = new GApp(canvas)
+
+            await appRef.current.initialize()
+
+            appRef.current.run()
+        }
+
+        main()
+
+        return () => {}
+    }, [])
 
     return (
         <>
-            <div>
-                <a href="https://vite.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img
-                        src={reactLogo}
-                        className="logo react"
-                        alt="React logo"
-                    />
-                </a>
-            </div>
-            <h1>Vite + React</h1>
-            <div className="card">
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
-                </button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
+            <canvas ref={canvasRef} width={600} height={400} />
+
+            <Debug keyCodes={debugs.keyCodes} mouse={debugs.mouse} />
         </>
+    )
+}
+
+function Debug({
+    keyCodes,
+    mouse,
+}: {
+    keyCodes: string[]
+    mouse: [number, number]
+}) {
+    return (
+        <div className="p-2">
+            <h2 className="font-semibold">
+                Current keys: {keyCodes.map((keyCode) => keyCode).join(', ')}
+            </h2>
+            <h2 className="font-semibold">
+                Mouse:{' '}
+                <span>
+                    ({mouse[0]}, {mouse[1]})
+                </span>
+            </h2>
+        </div>
     )
 }
 
