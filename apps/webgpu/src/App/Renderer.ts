@@ -1,8 +1,9 @@
-import { mat4, vec3 } from 'gl-matrix'
+import { mat4 } from 'gl-matrix'
 import shader from './shaders.wgsl?raw'
 import { Uniform } from './Uniform'
 import { BindGroup } from './BindGroup'
 import { Pipeline } from './Pipeline'
+import { TriangleMesh } from './Geometry/Triangle'
 
 export class Renderer {
     private canvas: HTMLCanvasElement
@@ -19,6 +20,8 @@ export class Renderer {
 
     private bindGroup!: GPUBindGroup
 
+    private triangle!: TriangleMesh
+
     constructor(canvas: HTMLCanvasElement) {
         if (!navigator.gpu) throw Error('WebGPU not supported.')
 
@@ -30,16 +33,22 @@ export class Renderer {
 
         // Basic union buffers for time and mvp
         this.timeUniform = new Uniform(this.device, 4, 'Time Buffer')
-        this.mvpUniform = new Uniform(this.device, 4 * 16 * 2, 'MVP Buffer')
+        this.mvpUniform = new Uniform(this.device, 4 * 16 * 3, 'MVP Buffer')
 
         // Create bind group and pipeline
         const bindGroup = new BindGroup(this.device, 'Main')
+        bindGroup.addUniformBuffer(GPUShaderStage.VERTEX, this.timeUniform)
+        bindGroup.addUniformBuffer(GPUShaderStage.VERTEX, this.mvpUniform)
         bindGroup.addUniformBuffer(GPUShaderStage.FRAGMENT, this.timeUniform)
         bindGroup.addUniformBuffer(GPUShaderStage.FRAGMENT, this.mvpUniform)
         bindGroup.build()
         
+        // Create assets
+        this.triangle = new TriangleMesh(this.device)
+
         // Create pipeline
         const pipeline = new Pipeline(this.device, 'Main')
+        pipeline.addVertexBufferLayout(this.triangle.bufferLayout)
         pipeline.setVertexShader(shader, 'vert_main')
         pipeline.setFragmentShader(shader, 'frag_main')
         pipeline.addBindGroupLayout(bindGroup.getLayout())
@@ -76,23 +85,20 @@ export class Renderer {
         })
     }
 
+    private t: number = 0
+
     public render() {
         this.timeUniform.write(new Float32Array([performance.now() / 1000])).end()
 
-        const position = vec3.fromValues(-2, 0, 0.5)
-        const forward: vec3 = [
-            Math.cos(0) * Math.cos(0),
-            Math.sin(0) * Math.cos(0),
-            Math.sin(0),
-        ]
-        const right = vec3.create()
-        vec3.cross(right, forward, [0, 0, 1])
-        const up = vec3.create()
-        vec3.cross(up, right, forward)
-        const target = vec3.create()
-        vec3.add(target, position, forward)
+        this.t += 0.01
+
+        if (this.t >= Math.PI * 2) this.t -= Math.PI * 2
+            
+        const model = mat4.create()
+        mat4.rotate(model, model, this.t, [0, 1, 0]);
+
         const view = mat4.create()
-        mat4.lookAt(view, position, target, up)
+        mat4.lookAt(view, [0, 0, 3], [0, 0, 0], [0, 1, 0]);
 
         const projection = mat4.create()
         mat4.perspective(
@@ -104,9 +110,11 @@ export class Renderer {
         )
         
         // convert to array buffer
+        const modelArray = new Float32Array(model)
         const viewArray = new Float32Array(view)
         const projectionArray = new Float32Array(projection)
 
+        this.mvpUniform.write(modelArray)
         this.mvpUniform.write(viewArray)
         this.mvpUniform.write(projectionArray)
         this.mvpUniform.end()
@@ -119,7 +127,7 @@ export class Renderer {
             colorAttachments: [
                 {
                     view: textureView,
-                    clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 0.0 },
+                    clearValue: { r: 0.5, g: 0.0, b: 0.25, a: 1.0 },
                     loadOp: 'clear',
                     storeOp: 'store',
                 },
@@ -129,6 +137,7 @@ export class Renderer {
         
         passEncoder.setPipeline(this.pipeline)
         passEncoder.setBindGroup(0, this.bindGroup)
+        passEncoder.setVertexBuffer(0, this.triangle.buffer)
         passEncoder.draw(3, 1, 0, 0)
         passEncoder.end()
         

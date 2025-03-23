@@ -8,32 +8,24 @@ struct UTime {
 };
 
 struct UMvp {
+    model: mat4x4<f32>,
     view: mat4x4<f32>,
     projection: mat4x4<f32>,
 };
 
-@binding(0) @group(0) var<uniform> timeUniform: UTime;
-@binding(1) @group(0) var<uniform> mvpUniform: UMvp;
+@binding(0) @group(0) var<uniform> v_timeUniform: UTime;
+@binding(1) @group(0) var<uniform> v_mvpUniform: UMvp;
+@binding(2) @group(0) var<uniform> f_timeUniform: UTime;
+@binding(3) @group(0) var<uniform> f_mvpUniform: UMvp;
 
 @vertex
 fn vert_main(
-    @builtin(vertex_index) ID: u32,
+    @location(0) vertexPosition: vec3f,
+    @location(1) vertexColor: vec3f,
 ) -> Fragment {
-    var positions = array<vec2f, 3>(
-        vec2f(0.0, 0.5),
-        vec2f(-0.5, -0.5),
-        vec2f(0.5, -0.5),
-    );
-
-    var colors = array<vec4f, 3>(
-        vec4f(1.0, 0.0, 0.0, 1.0),
-        vec4f(0.0, 1.0, 0.0, 1.0),
-        vec4f(0.0, 0.0, 1.0, 1.0),
-    );
-
     var output: Fragment;
-    output.Position = vec4f(positions[ID], 0.0, 1.0);
-    output.Color = colors[ID];
+    output.Position = v_mvpUniform.projection * v_mvpUniform.view * v_mvpUniform.model * vec4f(vertexPosition, 1.0);
+    output.Color = vec4f(vertexColor, 1.0);
 
     return output;
 }
@@ -47,7 +39,7 @@ fn frag_main(@location(0) Color: vec4f) -> @location(0) vec4f {
     let maxbrightness = 4.0;
     let speed = 2.0;
     
-    var time = timeUniform.time;
+    var time = f_timeUniform.time;
     // r = minbrightness + (maxbrightness - minbrightness) * 0.5 * (1.0 + cos(time * speed));
     // g = minbrightness + (maxbrightness - minbrightness) * 0.5 * (1.0 + cos(time * speed + 2.0));
     // b = minbrightness + (maxbrightness - minbrightness) * 0.5 * (1.0 + cos(time * speed + 4.0));
@@ -56,5 +48,6 @@ fn frag_main(@location(0) Color: vec4f) -> @location(0) vec4f {
     g = mix(minbrightness, maxbrightness, 0.5 * (1.0 + cos(time * speed + 2.0)));
     b = mix(minbrightness, maxbrightness, 0.5 * (1.0 + cos(time * speed + 4.0)));
     
+    // return Color;
     return vec4f(r, g, b, 1.0) * Color;
 }

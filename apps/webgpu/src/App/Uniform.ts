@@ -18,7 +18,7 @@ export class Uniform {
     public write(data: ArrayBuffer) {
         this.device.queue.writeBuffer(this.buffer, this.offset, data)
 
-        this.offset = data.byteLength
+        this.offset += data.byteLength
 
         return this
     }

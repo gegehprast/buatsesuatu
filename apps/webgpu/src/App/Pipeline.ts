@@ -3,10 +3,12 @@ export class Pipeline {
 
     public label: string
 
+    private vertexBuffers: GPUVertexBufferLayout[] = []
+
     private vertex?: GPUVertexState
 
     private fragment?: GPUFragmentState
-    
+
     public bindGroupLayouts: GPUBindGroupLayout[] = []
 
     public pipeline?: GPURenderPipeline
@@ -16,6 +18,12 @@ export class Pipeline {
         this.label = label
     }
 
+    public addVertexBufferLayout(
+        layout: GPUVertexBufferLayout,
+    ) {
+        this.vertexBuffers.push(layout)
+    }
+
     public setVertexShader(shader: string, entryPoint: string) {
         this.vertex = {
             module: this.device.createShaderModule({
@@ -23,6 +31,7 @@ export class Pipeline {
                 label: `P_VS_${this.label}`,
             }),
             entryPoint: entryPoint,
+            buffers: this.vertexBuffers
         }
 
         return this
@@ -52,7 +61,7 @@ export class Pipeline {
     }
 
     public build() {
-        if (!this.vertex) throw Error("Vertex shader not set.")
+        if (!this.vertex) throw Error('Vertex shader not set.')
 
         this.pipeline = this.device.createRenderPipeline({
             layout: this.device.createPipelineLayout({
@@ -68,9 +77,9 @@ export class Pipeline {
 
         return this
     }
-    
+
     public get() {
-        if (!this.pipeline) throw Error("Pipeline not built.")
+        if (!this.pipeline) throw Error('Pipeline not built.')
 
         return this.pipeline
     }
