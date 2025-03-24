@@ -87,8 +87,8 @@ export class Renderer {
 
     private t: number = 0
 
-    public render() {
-        this.timeUniform.write(new Float32Array([performance.now() / 1000])).end()
+    public render(time: number) {
+        this.timeUniform.write(new Float32Array([time])).end()
 
         this.t += 0.01
 
