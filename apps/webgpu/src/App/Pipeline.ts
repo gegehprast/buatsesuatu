@@ -19,8 +19,10 @@ export class Pipeline {
     }
 
     public addVertexBufferLayout(
-        layout: GPUVertexBufferLayout,
+        layout?: GPUVertexBufferLayout,
     ) {
+        if (!layout) return
+
         this.vertexBuffers.push(layout)
     }
 
@@ -73,6 +75,7 @@ export class Pipeline {
             primitive: {
                 topology: 'triangle-list',
             },
+            label: `PL_${this.label}`,
         })
 
         return this

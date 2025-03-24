@@ -1,3 +1,4 @@
+import { Storage } from './Storage'
 import { Uniform } from './Uniform'
 
 export class BindGroup {
@@ -13,7 +14,7 @@ export class BindGroup {
 
     public bindGroup?: GPUBindGroup
 
-    private uniformIndex: number = 0
+    private binding: number = 0
 
     constructor(device: GPUDevice, label: string) {
         this.device = device
@@ -22,7 +23,7 @@ export class BindGroup {
 
     public addUniformBuffer(stage: GPUShaderStageFlags, uniform: Uniform) {
         this.layoutEntries.push({
-            binding: this.uniformIndex,
+            binding: this.binding,
             visibility: stage,
             buffer: {
                 type: 'uniform',
@@ -31,18 +32,41 @@ export class BindGroup {
         })
         
         this.bindGroupEntries.push({
-            binding: this.uniformIndex,
+            binding: this.binding,
             resource: {
                 buffer: uniform.buffer,
-                label: `BGE_${this.label}_${this.uniformIndex}`,
+                label: `BGE_${this.label}_${this.binding}`,
             },
         })
 
-        this.uniformIndex++
+        this.binding++
 
         return this
     }
     
+    public addStorageBUffer(stage: GPUShaderStageFlags, storage: Storage) {
+        this.layoutEntries.push({
+            binding: this.binding,
+            visibility: stage,
+            buffer: {
+                type: 'read-only-storage',
+                hasDynamicOffset: false,
+            },
+        })
+        
+        this.bindGroupEntries.push({
+            binding: this.binding,
+            resource: {
+                buffer: storage.buffer,
+                label: `BGE_${this.label}_${this.binding}`,
+            },
+        })
+
+        this.binding++
+
+        return this
+    }
+
     public build() {
         this.layout = this.device.createBindGroupLayout({
             entries: this.layoutEntries,

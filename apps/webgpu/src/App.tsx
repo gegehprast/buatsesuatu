@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { App as GApp } from './App/App'
+import { Scene } from './App/Scene'
+import { TriangleMesh } from './App/Renderables/TriangleMesh'
 
 function App() {
     return (
@@ -31,6 +33,16 @@ function Canvas() {
             appRef.current = new GApp(canvas)
 
             await appRef.current.initialize()
+            
+            const scene = new Scene()
+            const triangle = new TriangleMesh(0, 0, 0, appRef.current.device!, appRef.current.context!, appRef.current.bindGroup)
+            const triangle2 = new TriangleMesh(1.5, 0, 0, appRef.current.device!, appRef.current.context!, appRef.current.bindGroup)
+
+            scene.addObject(triangle)
+            scene.addObject(triangle2)
+            scene.build()
+
+            appRef.current.addScene(scene)
 
             appRef.current.run()
         }
@@ -45,6 +57,14 @@ function Canvas() {
             <canvas ref={canvasRef} width={600} height={400} />
 
             <Debug keyCodes={debugs.keyCodes} mouse={debugs.mouse} />
+
+            <button onClick={() => appRef.current?.pause()} className="bg-gray-500 p-2">
+                Pause
+            </button>
+            
+            <button onClick={() => appRef.current?.run()} className="bg-gray-500 p-2">
+                Run
+            </button>
         </>
     )
 }

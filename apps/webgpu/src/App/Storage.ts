@@ -1,4 +1,4 @@
-export class Uniform {
+export class Storage {
     public device: GPUDevice
 
     public buffer: GPUBuffer
@@ -10,8 +10,8 @@ export class Uniform {
 
         this.buffer = device.createBuffer({
             size: size,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-            label: `UB_${label}`,
+            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+            label: `SB_${label}`,
         })
     }
 
