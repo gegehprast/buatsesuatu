@@ -1,22 +1,50 @@
+import { App } from './App'
 import { Scene } from './Scene'
 
 export class Renderer {
-    private device: GPUDevice
+    private app: App
 
-    private context: GPUCanvasContext
+    private depthStencilAttachment!: GPURenderPassDepthStencilAttachment
 
-    constructor(device: GPUDevice, context: GPUCanvasContext) {
-        this.device = device
-        this.context = context
+    constructor(app: App) {
+        this.app = app
+
+        this.init()
+    }
+
+    public init() {
+        const depthStencilBuffer = this.app.device!.createTexture({
+            size: {
+            width: this.app.canvas.width,
+            height: this.app.canvas.height,
+            depthOrArrayLayers: 1,
+        },
+            format: 'depth24plus-stencil8',
+            usage: GPUTextureUsage.RENDER_ATTACHMENT,
+        })
+
+        const depthStencilView = depthStencilBuffer.createView({
+            format: 'depth24plus-stencil8',
+            dimension: '2d',
+            aspect: 'all',
+        })
+
+        this.depthStencilAttachment = {
+            view: depthStencilView,
+            depthClearValue: 1.0,
+            depthLoadOp: 'clear',
+            depthStoreOp: 'store',
+            stencilLoadOp: 'clear',
+            stencilStoreOp: 'discard',
+        }
     }
 
     public render(scenes: Scene[]) {
-        const commandEncoder = this.device.createCommandEncoder({
+        const commandEncoder = this.app.device!.createCommandEncoder({
             label: 'command encoder',
         })
 
-        // Render
-        const textureView = this.context.getCurrentTexture().createView()
+        const textureView = this.app.context!.getCurrentTexture().createView()
         const passEncoder = commandEncoder.beginRenderPass({
             colorAttachments: [
                 {
@@ -27,6 +55,7 @@ export class Renderer {
                 },
             ],
             label: `Renderpass`,
+            depthStencilAttachment: this.depthStencilAttachment,
         })
 
         for (const [s, scene] of scenes.entries()) {
@@ -37,6 +66,6 @@ export class Renderer {
 
         passEncoder.end()
 
-        this.device.queue.submit([commandEncoder.finish()])
+        this.app.device!.queue.submit([commandEncoder.finish()])
     }
 }

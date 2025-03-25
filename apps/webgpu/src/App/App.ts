@@ -6,7 +6,7 @@ import { Time } from './Time'
 import { Uniform } from './Uniform'
 import { Storage } from './Storage'
 import { Camera } from './Camera'
-import { Input } from './Input'
+import { Input, InputListener } from './Input'
 
 
 export class App {
@@ -33,10 +33,14 @@ export class App {
     public scenes: Scene[] = []
 
     public input: Input
-    
+
     private camera: Camera
 
-    constructor(canvas: HTMLCanvasElement) {
+    private onTick?: (keys: string[]) => void
+
+    constructor(
+        canvas: HTMLCanvasElement
+    ) {
         this.canvas = canvas
 
         this.input = new Input(this.canvas)
@@ -56,8 +60,9 @@ export class App {
         this.input.init()
     }
 
-    public run() {
+    public run(onTick: (keys: string[]) => void) {
         console.log('Running renderer...')
+        this.onTick = onTick
 
         if (!this.running) {
             this.running = true
@@ -144,7 +149,7 @@ export class App {
 
         if (!this.context) throw Error('Context not initialized.')
 
-        this.renderer = new Renderer(this.device, this.context)
+        this.renderer = new Renderer(this)
     }
 
     private writeBuffers() {
@@ -185,6 +190,10 @@ export class App {
 
         if (!this.running) return
 
+        if (this.onTick) {
+            this.onTick(this.input.keys)
+        }
+
         this.camera.update()
 
         this.writeBuffers()
@@ -193,6 +202,4 @@ export class App {
 
         requestAnimationFrame(this.tick)
     }
-
-    
 }

@@ -4,6 +4,7 @@ import { Scene } from './App/Scene'
 import { Triangle } from './App/Objects/Triangle'
 import { Quad } from './App/Objects/Quad'
 import { InputListener } from './App/Input'
+import { mat4 } from 'gl-matrix'
 
 function App() {
     return (
@@ -16,11 +17,22 @@ function App() {
 function Canvas() {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const appRef = useRef<GApp>(null)
+    const trianglesRef = useRef<Triangle[]>([])
+    const quadsRef = useRef<Quad[]>([])
 
     const [debugs, setDebugs] = useState({
         keyCodes: [] as string[],
         mouse: [0, 0] as [number, number],
     })
+
+    const onTick = (keys: string[]) => {
+        if (keys.includes('KeyX')) {
+            trianglesRef.current.forEach((triangle) => {
+                triangle.setRotationX(triangle.rotationX + 0.025)
+                triangle.setRotationY(triangle.rotationY + 0.025)
+            })
+        }
+    }
 
     useEffect(() => {
         const observeControl: InputListener = ({ keys, mouseX, mouseY }) => {
@@ -60,7 +72,10 @@ function Canvas() {
             
             app.input.observeControl(observeControl)
 
-            app.run()
+            app.run(onTick)
+
+            trianglesRef.current = scene.objects.filter((object) => object instanceof Triangle) as Triangle[]
+            quadsRef.current = scene.objects.filter((object) => object instanceof Quad) as Quad[]
         }
 
         main()
@@ -78,11 +93,17 @@ function Canvas() {
 
             <Debug keyCodes={debugs.keyCodes} mouse={debugs.mouse} />
 
-            <button onClick={() => appRef.current?.pause()} className="bg-gray-500 p-2">
+            <button
+                onClick={() => appRef.current?.pause()}
+                className="bg-gray-500 p-2"
+            >
                 Pause
             </button>
-            
-            <button onClick={() => appRef.current?.run()} className="bg-gray-500 p-2">
+
+            <button
+                onClick={() => appRef.current?.run(onTick)}
+                className="bg-gray-500 p-2"
+            >
                 Run
             </button>
         </>

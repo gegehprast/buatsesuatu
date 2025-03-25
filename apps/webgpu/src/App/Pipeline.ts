@@ -85,6 +85,11 @@ export class Pipeline {
                 topology: this.topology,
             },
             label: `PL_${this.label}`,
+            depthStencil: {
+                format: 'depth24plus-stencil8',
+                depthWriteEnabled: true,
+                depthCompare: 'less-equal',
+            },
         })
 
         return this

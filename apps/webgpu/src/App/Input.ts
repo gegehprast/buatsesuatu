@@ -12,7 +12,7 @@ export class Input {
 
     private controlListener: InputListener[] = []
 
-    private keys: string[] = []
+    public keys: string[] = []
     
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas
@@ -34,9 +34,13 @@ export class Input {
 
             event.preventDefault()
 
-            if (this.keys.includes(event.code)) return
+            console.log(event.code)
 
-            this.keys.push(event.code)
+            if (!this.keys.includes(event.code)) {
+                this.keys.push(event.code)
+            }
+
+            console.log(this.keys)
 
             this.controlListener.forEach((listener) => {
                 listener({
