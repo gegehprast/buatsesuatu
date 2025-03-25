@@ -62,17 +62,6 @@ export class Camera {
         this.phi = Math.min(90, Math.max(-90, this.phi - dY))
     }
 
-    public move(forwardsAmount: number, rightAmount: number) {
-        vec3.scaleAndAdd(
-            this.position,
-            this.position,
-            this.forwards,
-            forwardsAmount,
-        )
-
-        vec3.scaleAndAdd(this.position, this.position, this.right, rightAmount)
-    }
-
     public update() {
         vec3.scaleAndAdd(
             this.position,
