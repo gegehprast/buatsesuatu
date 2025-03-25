@@ -12,7 +12,7 @@ export class Scene {
 
     public addObject(object: Object) {
         this.objects.push(object)
-        
+
         const i = this.objects.length - 1
         const blankMatrix = mat4.create()
 
@@ -24,7 +24,7 @@ export class Scene {
     public update() {
         for (const [i, object] of this.objects.entries()) {
             object.update()
-            
+
             for (let j = 0; j < 16; j++) {
                 this.objectData[16 * i + j] = object.model[j]
             }

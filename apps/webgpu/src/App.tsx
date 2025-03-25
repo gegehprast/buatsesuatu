@@ -3,6 +3,7 @@ import { App as GApp } from './App/App'
 import { Scene } from './App/Scene'
 import { Triangle } from './App/Objects/Triangle'
 import { Quad } from './App/Objects/Quad'
+import { InputListener } from './App/Input'
 
 function App() {
     return (
@@ -22,6 +23,13 @@ function Canvas() {
     })
 
     useEffect(() => {
+        const observeControl: InputListener = ({ keys, mouseX, mouseY }) => {
+            setDebugs({
+                keyCodes: keys,
+                mouse: [mouseX, mouseY],
+            })
+        }
+        
         async function main() {
             if (appRef.current) return
 
@@ -31,30 +39,37 @@ function Canvas() {
 
             const canvas = canvasRef.current
 
-            appRef.current = new GApp(canvas)
+            const app = new GApp(canvas)
+            appRef.current = app
 
-            await appRef.current.initialize()
+            await app.initialize()
             
             const scene = new Scene()
             
-            for (let i = -50; i <= 50; i++) {
-                const triangle = new Triangle([i * 0.2, i % 2 === 0 ? 0.5 : -0.5, 0])
-                // scene.addObject(triangle)
+            for (let i = -40; i <= 40; i++) {
+                const triangle = new Triangle([i * 0.6, i % 2 === 0 ? 0.6 : -0.6, -1.0])
+                scene.addObject(triangle)
             }
             
-            for (let i = -50; i <= 50; i++) {
+            for (let i = -40; i <= 40; i++) {
                 const quad = new Quad([i * 0.6, i % 2 === 0 ? 0.6 : -0.6, 0])
                 scene.addObject(quad)
             }
             
-            appRef.current.addScene(scene)
+            app.addScene(scene)
+            
+            app.input.observeControl(observeControl)
 
-            appRef.current.run()
+            app.run()
         }
 
         main()
 
-        return () => {}
+        return () => {
+            if (appRef.current) {
+                appRef.current.input.unobserveControl(observeControl)
+            }
+        }
     }, [])
 
     return (

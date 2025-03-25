@@ -5,6 +5,9 @@ import { Scene } from './Scene'
 import { Time } from './Time'
 import { Uniform } from './Uniform'
 import { Storage } from './Storage'
+import { Camera } from './Camera'
+import { Input } from './Input'
+
 
 export class App {
     public canvas: HTMLCanvasElement
@@ -29,8 +32,16 @@ export class App {
 
     public scenes: Scene[] = []
 
+    public input: Input
+    
+    private camera: Camera
+
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas
+
+        this.input = new Input(this.canvas)
+
+        this.camera = new Camera([0, 0, -4], 0, 0, this)
 
         this.tick = this.tick.bind(this)
     }
@@ -41,6 +52,8 @@ export class App {
         this.setupBindings()
 
         this.setupRenderer()
+
+        this.input.init()
     }
 
     public run() {
@@ -141,8 +154,7 @@ export class App {
 
         this.uTime.write(new Float32Array([this.time.timeS])).end()
 
-        const view = mat4.create()
-        mat4.lookAt(view, [0, 0, 3], [0, 0, 0], [0, 1, 0])
+        const view = this.camera.getView()
 
         const projection = mat4.create()
         mat4.perspective(
@@ -173,10 +185,14 @@ export class App {
 
         if (!this.running) return
 
+        this.camera.update()
+
         this.writeBuffers()
 
         this.renderer.render(this.scenes)
 
         requestAnimationFrame(this.tick)
     }
+
+    
 }
