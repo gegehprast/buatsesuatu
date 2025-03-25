@@ -13,6 +13,7 @@ export class Camera {
     private app: App
     private forwardInput: number = 0
     private rightInput: number = 0
+    private upInput: number = 0
 
     constructor(position: vec3, phi: number, theta: number, app: App) {
         this.position = position
@@ -31,6 +32,7 @@ export class Camera {
         this.app.input.observeControl(({ isInsideCanvas, keys, mouseMovementX, mouseMovementY }) => {
             this.forwardInput = 0
             this.rightInput = 0
+            this.upInput = 0
 
             keys.forEach((key) => {
                 switch (key) {
@@ -45,6 +47,12 @@ export class Camera {
                         break
                     case 'KeyD':
                         this.rightInput += 0.02
+                        break
+                    case 'Space':
+                        this.upInput += 0.02
+                        break
+                    case 'ShiftLeft':
+                        this.upInput -= 0.02
                         break
                 }
             })
@@ -75,6 +83,13 @@ export class Camera {
             this.position,
             this.right,
             this.rightInput,
+        )
+        
+        vec3.scaleAndAdd(
+            this.position,
+            this.position,
+            this.up,
+            this.upInput,
         )
 
         this.forwards = [

@@ -53,6 +53,6 @@ fn frag_main(@location(0) Color: vec4f) -> @location(0) vec4f {
     g = mix(minbrightness, maxbrightness, 0.5 * (1.0 + cos(time * speed + 2.0)));
     b = mix(minbrightness, maxbrightness, 0.5 * (1.0 + cos(time * speed + 4.0)));
     
-    // return Color;
-    return vec4f(r, g, b, 1.0) * Color;
+    return Color;
+    // return vec4f(r, g, b, 1.0) * Color;
 }

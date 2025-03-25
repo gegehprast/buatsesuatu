@@ -34,8 +34,6 @@ export class Input {
 
             event.preventDefault()
 
-            console.log(event.code)
-
             if (!this.keys.includes(event.code)) {
                 this.keys.push(event.code)
             }

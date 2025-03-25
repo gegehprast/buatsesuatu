@@ -26,11 +26,47 @@ function Canvas() {
     })
 
     const onTick = (keys: string[]) => {
+        // if (keys.includes('KeyX')) {
+        //     for (const [i, triangle] of trianglesRef.current.entries()) {
+        //         switch (i) {
+        //             case 0:
+        //                 triangle.rotateX(triangle.theta + 0.01)
+        //                 break
+        //             case 1:
+        //                 triangle.rotateY(triangle.theta + 0.01)
+        //                 break
+        //             case 2:
+        //                 triangle.rotateZ(triangle.theta + 0.01)
+        //                 break
+        //             case 3:
+        //                 triangle.rotate(triangle.theta + 0.01)
+        //                 break
+        //         }
+        //     }
+        // }
+        
         if (keys.includes('KeyX')) {
-            trianglesRef.current.forEach((triangle) => {
-                triangle.setRotationX(triangle.rotationX + 0.025)
-                triangle.setRotationY(triangle.rotationY + 0.025)
-            })
+            for (const triangle of trianglesRef.current) {
+                triangle.rotateX(triangle.thetaX + 0.01)
+            }
+        }
+
+        if (keys.includes('KeyY')) {
+            for (const triangle of trianglesRef.current) {
+                triangle.rotateY(triangle.thetaY + 0.01)
+            }
+        }
+
+        if (keys.includes('KeyZ')) {
+            for (const triangle of trianglesRef.current) {
+                triangle.rotateZ(triangle.thetaZ + 0.01)
+            }
+        }
+
+        if (keys.includes('KeyQ')) {
+            for (const triangle of trianglesRef.current) {
+                triangle.rotate(triangle.thetaX + 0.01, triangle.thetaY + 0.01, triangle.thetaZ + 0.01)
+            }
         }
     }
 
@@ -58,14 +94,19 @@ function Canvas() {
             
             const scene = new Scene()
             
-            for (let i = -40; i <= 40; i++) {
-                const triangle = new Triangle([i * 0.6, i % 2 === 0 ? 0.6 : -0.6, -1.0])
-                scene.addObject(triangle)
-            }
+            // for (let i = -40; i <= 40; i++) {
+            //     const triangle = new Triangle([i * 0.6, i % 2 === 0 ? 0.6 : -0.6, 1.0])
+            //     scene.addObject(triangle)
+            // }
             
-            for (let i = -40; i <= 40; i++) {
-                const quad = new Quad([i * 0.6, i % 2 === 0 ? 0.6 : -0.6, 0])
-                scene.addObject(quad)
+            // for (let i = -40; i <= 40; i++) {
+            //     const quad = new Quad([i * 0.6, i % 2 === 0 ? 0.6 : -0.6, 0])
+            //     scene.addObject(quad)
+            // }
+            
+            for (let i = -2; i < 2; i++) {
+                const triangle = new Triangle([i * 1.2 + 0.5, 0.0, 0.0])
+                scene.addObject(triangle)
             }
             
             app.addScene(scene)
