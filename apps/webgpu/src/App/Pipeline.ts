@@ -12,6 +12,8 @@ export class Pipeline {
     public bindGroupLayouts: GPUBindGroupLayout[] = []
 
     public pipeline?: GPURenderPipeline
+    
+    public topology: GPUPrimitiveTopology = 'triangle-list'
 
     constructor(device: GPUDevice, label: string) {
         this.device = device
@@ -61,6 +63,13 @@ export class Pipeline {
 
         return this
     }
+    
+
+    public setTopology(topology: GPUPrimitiveTopology) {
+        this.topology = topology
+
+        return this
+    }
 
     public build() {
         if (!this.vertex) throw Error('Vertex shader not set.')
@@ -73,7 +82,7 @@ export class Pipeline {
             vertex: this.vertex,
             fragment: this.fragment,
             primitive: {
-                topology: 'triangle-list',
+                topology: this.topology,
             },
             label: `PL_${this.label}`,
         })

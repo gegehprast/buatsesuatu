@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { App as GApp } from './App/App'
 import { Scene } from './App/Scene'
-import { TriangleMesh } from './App/Meshes/TriangleMesh'
 import { Triangle } from './App/Objects/Triangle'
+import { Quad } from './App/Objects/Quad'
 
 function App() {
     return (
@@ -36,12 +36,17 @@ function Canvas() {
             await appRef.current.initialize()
             
             const scene = new Scene()
-            const triangle = new Triangle([0, 0, 0])
-            const triangle2 = new Triangle([1, 0.5, 0])
-
-            scene.addObject(triangle)
-            scene.addObject(triangle2)
-
+            
+            for (let i = -50; i <= 50; i++) {
+                const triangle = new Triangle([i * 0.2, i % 2 === 0 ? 0.5 : -0.5, 0])
+                // scene.addObject(triangle)
+            }
+            
+            for (let i = -50; i <= 50; i++) {
+                const quad = new Quad([i * 0.6, i % 2 === 0 ? 0.6 : -0.6, 0])
+                scene.addObject(quad)
+            }
+            
             appRef.current.addScene(scene)
 
             appRef.current.run()
