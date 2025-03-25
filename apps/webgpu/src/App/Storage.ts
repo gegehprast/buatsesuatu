@@ -22,6 +22,14 @@ export class Storage {
 
         return this
     }
+    
+    public writeF(data: Float32Array) {
+        this.device.queue.writeBuffer(this.buffer, this.offset, data.buffer, data.byteOffset, data.length)
+
+        this.offset += data.byteLength
+
+        return this
+    }
 
     public end() {
         this.offset = 0

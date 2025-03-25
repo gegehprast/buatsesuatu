@@ -29,9 +29,9 @@ export class Renderer {
             label: `Renderpass`,
         })
 
-        for (const scene of scenes) {
-            for (const object of scene.objects) {
-                object.draw(passEncoder)
+        for (const [s, scene] of scenes.entries()) {
+            for (const [o, object] of scene.objects.entries()) {
+                object.mesh.render(passEncoder, s * scene.objects.length + o)
             }
         }
 

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { App as GApp } from './App/App'
 import { Scene } from './App/Scene'
-import { TriangleMesh } from './App/Renderables/TriangleMesh'
+import { TriangleMesh } from './App/Meshes/TriangleMesh'
+import { Triangle } from './App/Objects/Triangle'
 
 function App() {
     return (
@@ -35,12 +36,11 @@ function Canvas() {
             await appRef.current.initialize()
             
             const scene = new Scene()
-            const triangle = new TriangleMesh(0, 0, 0, appRef.current.device!, appRef.current.context!, appRef.current.bindGroup)
-            const triangle2 = new TriangleMesh(1.5, 0, 0, appRef.current.device!, appRef.current.context!, appRef.current.bindGroup)
+            const triangle = new Triangle([0, 0, 0])
+            const triangle2 = new Triangle([1, 0.5, 0])
 
             scene.addObject(triangle)
             scene.addObject(triangle2)
-            scene.build()
 
             appRef.current.addScene(scene)
 
