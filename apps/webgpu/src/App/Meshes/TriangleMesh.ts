@@ -14,9 +14,9 @@ export class TriangleMesh implements Renderable {
 
     public mainBindGroup?: BindGroup
 
-    public buffer?: GPUBuffer
+    public vertexBuffer?: GPUBuffer
 
-    public bufferLayout?: GPUVertexBufferLayout
+    public vertexBufferLayout?: GPUVertexBufferLayout
 
     // prettier-ignore
     public vertices: Float32Array = new Float32Array([
@@ -42,18 +42,18 @@ export class TriangleMesh implements Renderable {
         }
 
         // create the buffer
-        this.buffer = this.device.createBuffer({
+        this.vertexBuffer = this.device.createBuffer({
             size: this.vertices.byteLength,
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
             mappedAtCreation: true,
         })
 
         // copy the vertices into the buffer
-        new Float32Array(this.buffer.getMappedRange()).set(this.vertices)
-        this.buffer.unmap()
+        new Float32Array(this.vertexBuffer.getMappedRange()).set(this.vertices)
+        this.vertexBuffer.unmap()
 
         // set the buffer layout
-        this.bufferLayout = {
+        this.vertexBufferLayout = {
             arrayStride: 4 * 6,
             attributes: [
                 {
@@ -78,7 +78,7 @@ export class TriangleMesh implements Renderable {
 
         if (!this.mainBindGroup) throw Error('Main bind group not initialized.')
 
-        this.pipeline.addVertexBufferLayout(this.bufferLayout)
+        this.pipeline.addVertexBufferLayout(this.vertexBufferLayout)
         this.pipeline.setVertexShader(shader, 'vert_main')
         this.pipeline.setFragmentShader(shader, 'frag_main')
         this.pipeline.addBindGroupLayout(this.mainBindGroup.getLayout())
@@ -92,7 +92,7 @@ export class TriangleMesh implements Renderable {
 
         passEncoder.setPipeline(this.pipeline.get())
         passEncoder.setBindGroup(0, this.mainBindGroup.get())
-        passEncoder.setVertexBuffer(0, this.buffer)
+        passEncoder.setVertexBuffer(0, this.vertexBuffer)
         passEncoder.draw(3, 1, 0, index)
     }
 }
