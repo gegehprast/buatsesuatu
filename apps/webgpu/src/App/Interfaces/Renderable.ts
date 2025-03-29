@@ -12,9 +12,9 @@ export interface Renderable {
 
     mainBindGroup?: BindGroup
 
-    buffer?: GPUBuffer
+    vertexBuffer?: GPUBuffer
 
-    bufferLayout?: GPUVertexBufferLayout
+    vertexBufferLayout?: GPUVertexBufferLayout
 
     init(
         device: GPUDevice,
