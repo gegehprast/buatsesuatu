@@ -93,9 +93,9 @@ export class Camera {
         )
 
         this.forwards = [
-            Math.sin(degToRad(this.theta)) * Math.cos(degToRad(this.phi)),
+            -1 * Math.sin(degToRad(this.theta)) * Math.cos(degToRad(this.phi)),
             Math.sin(degToRad(this.phi)),
-            Math.cos(degToRad(this.phi)) * Math.cos(degToRad(this.theta)),
+            -1 * Math.cos(degToRad(this.phi)) * Math.cos(degToRad(this.theta)),
         ]
 
         vec3.cross(this.right, this.forwards, [0, 1, 0])

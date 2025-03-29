@@ -45,7 +45,7 @@ export class App {
 
         this.input = new Input(this.canvas)
 
-        this.camera = new Camera([0, 0, -4], 0, 0, this)
+        this.camera = new Camera([0, 0, 4], 0, 0, this)
 
         this.tick = this.tick.bind(this)
     }
