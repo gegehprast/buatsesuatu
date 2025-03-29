@@ -15,10 +15,10 @@ export class Renderer {
     public init() {
         const depthStencilBuffer = this.app.device!.createTexture({
             size: {
-            width: this.app.canvas.width,
-            height: this.app.canvas.height,
-            depthOrArrayLayers: 1,
-        },
+                width: this.app.canvas.width,
+                height: this.app.canvas.height,
+                depthOrArrayLayers: 1,
+            },
             format: 'depth24plus-stencil8',
             usage: GPUTextureUsage.RENDER_ATTACHMENT,
         })
