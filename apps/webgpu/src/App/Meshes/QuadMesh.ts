@@ -14,20 +14,22 @@ export class QuadMesh implements Renderable {
 
     public mainBindGroup?: BindGroup
 
-    public buffer?: GPUBuffer
+    public vertexBuffer?: GPUBuffer
 
-    public bufferLayout?: GPUVertexBufferLayout
+    public vertexBufferLayout?: GPUVertexBufferLayout
 
     // prettier-ignore
     public vertices: Float32Array = new Float32Array([
         -0.5, -0.5, 0.0, 1.0, 0.0, 0.0,
-        0.5, -0.5, 0.0, 0.0, 0.5, 0.5,
-        -0.5, 0.5, 0.0, 0.0, 0.5, 0.5,
-
-        0.5, -0.5, 0.0, 0.0, 0.5, 0.5,
-        0.5, 0.5, 0.0, 1.0, 0.0, 0.0,
-        -0.5, 0.5, 0.0, 0.0, 0.5, 0.5,
+        0.5, -0.5, 0.0, 0.0, 1.0, 0.0,
+        -0.5, 0.5, 0.0, 1.0, 1.0, 0.0,
+        0.5, 0.5, 0.0, 0.0, 0.0, 1.0,
     ])
+    public indices: Uint32Array = new Uint32Array([
+        0, 1, 2,
+        1, 3, 2,
+    ])
+    public indexBuffer?: GPUBuffer
 
     public init(
         device: GPUDevice,
@@ -46,19 +48,30 @@ export class QuadMesh implements Renderable {
         }
 
         // create the buffer
-        this.buffer = this.device.createBuffer({
+        this.vertexBuffer = this.device.createBuffer({
             size: this.vertices.byteLength,
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
             mappedAtCreation: true,
         })
 
         // copy the vertices into the buffer
-        new Float32Array(this.buffer.getMappedRange()).set(this.vertices)
-        this.buffer.unmap()
+        new Float32Array(this.vertexBuffer.getMappedRange()).set(this.vertices)
+        this.vertexBuffer.unmap()
+        
+        // create the index buffer
+        this.indexBuffer = this.device.createBuffer({
+            size: this.indices.byteLength,
+            usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+            mappedAtCreation: true,
+        })
+
+        // copy the indices into the buffer
+        new Uint32Array(this.indexBuffer.getMappedRange()).set(this.indices)
+        this.indexBuffer.unmap()
 
         // set the buffer layout
-        this.bufferLayout = {
-            arrayStride: 4 * 6,
+        this.vertexBufferLayout = {
+            arrayStride: 4 * (3 + 3),
             attributes: [
                 {
                     shaderLocation: 0,
@@ -82,7 +95,7 @@ export class QuadMesh implements Renderable {
 
         if (!this.mainBindGroup) throw Error('Main bind group not initialized.')
 
-        this.pipeline.addVertexBufferLayout(this.bufferLayout)
+        this.pipeline.addVertexBufferLayout(this.vertexBufferLayout)
         this.pipeline.setVertexShader(shader, 'vert_main')
         this.pipeline.setFragmentShader(shader, 'frag_main')
         this.pipeline.addBindGroupLayout(this.mainBindGroup.getLayout())
@@ -96,7 +109,8 @@ export class QuadMesh implements Renderable {
 
         passEncoder.setPipeline(this.pipeline.get())
         passEncoder.setBindGroup(0, this.mainBindGroup.get())
-        passEncoder.setVertexBuffer(0, this.buffer)
-        passEncoder.draw(6, 1, 0, index)
+        passEncoder.setVertexBuffer(0, this.vertexBuffer)
+        passEncoder.setIndexBuffer(this.indexBuffer!, 'uint32')
+        passEncoder.drawIndexed(6, 1, 0, 0, index)
     }
 }
