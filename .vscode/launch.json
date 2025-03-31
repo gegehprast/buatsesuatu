@@ -9,7 +9,7 @@
       "type": "pickString",
       "description": "Select a project to debug",
       // Add more apps as we progress
-      "options": ["cropemall", "react-playground", "docs"]
+      "options": ["cropemall", "react-playground", "docs", "webgpu"]
     }
   ],
   "configurations": [
