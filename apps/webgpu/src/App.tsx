@@ -4,7 +4,6 @@ import { Scene } from './App/Scene'
 import { Triangle } from './App/Objects/Triangle'
 import { Quad } from './App/Objects/Quad'
 import { InputListener } from './App/Input'
-import { mat4 } from 'gl-matrix'
 
 function App() {
     return (
@@ -99,10 +98,10 @@ function Canvas() {
             //     scene.addObject(triangle)
             // }
             
-            // for (let i = -40; i <= 40; i++) {
-            //     const quad = new Quad([i * 0.6, i % 2 === 0 ? 0.6 : -0.6, 0])
-            //     scene.addObject(quad)
-            // }
+            for (let i = -40; i <= 40; i++) {
+                const quad = new Quad([i * 0.6, i % 2 === 0 ? 0.6 : -0.6, -4])
+                scene.addObject(quad)
+            }
             
             for (let i = -2; i < 2; i++) {
                 const triangle = new Triangle([i * 1.2 + 0.5, 0.0, 0.0])
